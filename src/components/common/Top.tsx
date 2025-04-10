@@ -101,8 +101,15 @@
 
 // export default Top;
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Badge } from "antd";
-import { Search, Heart, ShoppingCart, MenuIcon, GitCompare, X } from "lucide-react";
+import { Badge, Button } from "antd";
+import {
+  Search,
+  Heart,
+  ShoppingCart,
+  MenuIcon,
+  GitCompare,
+  X,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import Account from "../ui/Account";
 import { useCompare } from "../../hooks/CompareContext";
@@ -112,6 +119,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
 import { useGetSearchProductsQuery } from "../../redux/api/productApi/ProductApi";
 import { useState, useEffect, useRef } from "react";
+import TopNav from "./TopNav";
 
 const Top = ({
   setIsMobileMenuOpen,
@@ -124,9 +132,13 @@ const Top = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [showResults, setShowResults] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-  
-  const { data: searchResults, isLoading, isError } = useGetSearchProductsQuery(
-    { search: searchTerm },
+
+  const {
+    data: searchResults,
+    isLoading,
+    isError,
+  } = useGetSearchProductsQuery(
+    { search: searchTerm }
     // { skip: searchTerm.length < 2 } // Don't search for very short terms
   );
 
@@ -137,7 +149,10 @@ const Top = ({
   // Close search results when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowResults(false);
       }
     };
@@ -159,114 +174,161 @@ const Top = ({
   };
 
   return (
-    <div className="h-16 border-b border-gray-200 flex items-center justify-between px-4 md:px-10 bg-white shadow-sm relative">
-      <button
-        type="button"
-        className="md:hidden z-50 p-2 mr-2 rounded-lg bg-white dark:bg-[#0F0F12] shadow-md"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      >
-        <MenuIcon className="h-5 w-5 text-gray-600 dark:text-gray-300" />
-      </button>
+    <div>
+      <div className=" space-y-3  border-gray-200 flex items-center justify-between  px-4 md:px-10 bg-white md:shadow relative">
+        <button
+          type="button"
+          className="md:hidden z-50 p-2 mr-2 rounded-lg bg-white dark:bg-[#0F0F12]"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
+          <MenuIcon className="h-8 w-8 text-gray-600 dark:text-gray-300" />
+        </button>
 
-      {/* Left: Logo */}
-      <NavLink to={"/"}>
-        <div className="text-2xl font-bold hover:cursor-pointer text-gray-800">
-          <img src="/brand-logo.png" width="120px" height="10px" alt="" />
-        </div>
-      </NavLink>
+        {/* Left: Logo */}
+        <NavLink to={"/"}>
+          <div className="text-2xl font-bold hover:cursor-pointer text-gray-800">
+            <img src="/brand-logo.png" width="90px" height="10px" alt="" />
+          </div>
+        </NavLink>
 
-      {/* Middle: Search Bar with Results */}
-      <div className="flex-1 mx-4 md:flex" ref={searchRef}>
-        <div className="relative w-full">
-          <input
-            type="text"
-            placeholder="Search for products..."
-            className="w-full p-2 pl-10 pr-8 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            onFocus={() => searchTerm.length > 1 && setShowResults(true)}
-          />
-          <Search
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-            size={18}
-          />
-          {searchTerm && (
-            <X
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
-              size={18}
-              onClick={clearSearch}
+        {/* Middle: Search Bar with Results */}
+        <div className="flex-1 mx-4 md:flex" ref={searchRef}>
+          <div className="relative w-full hidden md:block">
+            <input
+              type="text"
+              placeholder="Search for products..."
+              className="w-full p-2 pl-10 pr-8 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none transition"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              onFocus={() => searchTerm.length > 1 && setShowResults(true)}
             />
-          )}
+            <Search
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              size={18}
+            />
+            {searchTerm && (
+              <X
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
+                size={18}
+                onClick={clearSearch}
+              />
+            )}
 
-          {/* Search Results Dropdown */}
-          {showResults && (
-            <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
-              {isLoading ? (
-                <div className="p-4 text-center">Loading...</div>
-              ) : isError ? (
-                <div className="p-4 text-center text-red-500">Error loading results</div>
-              ) : searchResults?.data?.products.length ? (
-                <div className="divide-y divide-gray-100">
-                  {searchResults.data.products.map((product: any) => (
-                    <NavLink 
-                      key={product._id} 
-                      to={`/details/${product._id}`}
-                      onClick={() => setShowResults(false)}
-                    >
-                      <div className="p-3 hover:bg-gray-50 flex items-center gap-3">
-                        <img 
-                          src={product.productFeatureImage} 
-                          alt={product.productName}
-                          className="w-10 h-10 object-cover rounded"
-                        />
-                        <div>
-                          <div className="font-medium">{product.productName}</div>
-                          <div className="text-sm text-gray-500">
-                            {product.productBrand?.name} • {product.productCategory?.name}
+            {/* Search Results Dropdown */}
+            {showResults && (
+              <div className="absolute z-50 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
+                {isLoading ? (
+                  <div className="p-4 text-center">Loading...</div>
+                ) : isError ? (
+                  <div className="p-4 text-center text-red-500">
+                    Error loading results
+                  </div>
+                ) : searchResults?.data?.products.length ? (
+                  <div className="divide-y divide-gray-100">
+                    {searchResults.data.products.map((product: any) => (
+                      <NavLink
+                        key={product._id}
+                        to={`/details/${product._id}`}
+                        onClick={() => setShowResults(false)}
+                      >
+                        <div className="p-3 hover:bg-gray-50 flex items-center gap-3">
+                          <img
+                            src={product.productFeatureImage}
+                            alt={product.productName}
+                            className="w-10 h-10 object-cover rounded"
+                          />
+                          <div>
+                            <div className="font-medium">
+                              {product.productName}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              {product.productBrand?.name} •{" "}
+                              {product.productCategory?.name}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </NavLink>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-4 text-center text-gray-500">No products found</div>
-              )}
+                      </NavLink>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    No products found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Wishlist, Login, Cart (Hidden in Mobile) */}
+        <div className="hidden md:flex gap-6 items-center">
+          {/* Compare Icon with Text */}
+          <Badge color="blue" count={compareList?.length}>
+            <div className="flex flex-col items-center p-2 rounded-full  transition duration-300 cursor-pointer">
+              <div className="p-2 rounded-full bg-gray-200">
+                <GitCompare
+                  onClick={() => setCompareOpen(true)}
+                  className="text-gray-600 hover:text-blue-500 transition duration-300"
+                  size={20} // Reduced the icon size
+                />
+              </div>
+              <span className="text-sm text-gray-600 mt-1">Compare</span>{" "}
+              {/* Text below the icon */}
             </div>
-          )}
+          </Badge>
+
+          {/* Wishlist Icon with Text */}
+          <Badge color="blue" count={wishlistData?.data?.products?.length}>
+            <div className="flex flex-col items-center p-2 rounded-full  transition duration-300 cursor-pointer">
+              <div className="p-2 rounded-full bg-gray-200">
+                <Heart
+                  onClick={() => setWishlistOpen(true)}
+                  className="text-gray-600 hover:text-blue-500 transition duration-300"
+                  size={20} // Reduced the icon size
+                />
+              </div>
+              <span className="text-sm text-gray-600 mt-1">Wishlist</span>{" "}
+              {/* Text below the icon */}
+            </div>
+          </Badge>
+
+          {/* Cart Icon with Text */}
+          <Badge color="blue" count={userCartData?.data?.products?.length}>
+            <div className="flex flex-col items-center p-2 rounded-full  transition duration-300 cursor-pointer">
+              <div className="p-2 rounded-full bg-gray-200">
+                <ShoppingCart
+                  className="text-gray-600 hover:text-blue-500 transition duration-300"
+                  size={20} // Reduced the icon size
+                  onClick={showCart}
+                />
+              </div>
+              <span className="text-sm text-gray-600 mt-1">Cart</span>{" "}
+              {/* Text below the icon */}
+            </div>
+          </Badge>
+
+          {/* Account (Only if user is logged in) */}
+          {user && user !== null && <Account />}
+        </div>
+
+        <div className="md:hidden flex gap-4 items-center">
+          {/* login button and register button */}
+          <Button color="default" variant="outlined">
+            Login
+          </Button>
+          <Button color="default" variant="outlined">
+            Register
+          </Button>
         </div>
       </div>
-
-      {/* Right: Wishlist, Login, Cart (Hidden in Mobile) */}
-      <div className="hidden md:flex gap-6 items-center">
-        <Badge color="blue" count={compareList?.length}>
-          <div className="p-2 rounded-full bg-gray-200">
-            <GitCompare
-              className="text-gray-600 hover:text-blue-500 transition duration-300 cursor-pointer"
-              size={24}
-              onClick={() => setCompareOpen(true)}
-            />
-          </div>
-        </Badge>
-        <Badge color="blue" count={wishlistData?.data?.products?.length}>
-          <div className="p-2 rounded-full bg-gray-200">
-            <Heart
-              onClick={() => setWishlistOpen(true)}
-              className="text-gray-600 hover:text-blue-500 transition duration-300 cursor-pointer"
-              size={24}
-            />
-          </div>
-        </Badge>
-        <Badge color="blue" count={userCartData?.data?.products?.length}>
-          <div className="p-2 rounded-full bg-gray-200">
-            <ShoppingCart
-              className="text-gray-600 hover:text-blue-500 transition duration-300 cursor-pointer"
-              size={24}
-              onClick={showCart}
-            />
-          </div>
-        </Badge>
-        {user && user !== null && <Account />}
+      <div>
+        <TopNav
+          showResults={showResults}
+          searchResults={searchResults}
+          searchRef={searchRef}
+          searchTerm={searchTerm}
+          handleSearchChange={handleSearchChange}
+        />
       </div>
     </div>
   );
