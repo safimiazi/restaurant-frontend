@@ -29,13 +29,17 @@ const Sidebar = ({ setIsMobileMenuOpen, isMobileMenuOpen }: any) => {
       >
         <div className="h-full flex flex-col">
           {/* Sidebar Menu */}
-          <div className="flex-1 overflow-y-auto md:mt-16 py-4 px-4 space-y-1">
-            {CategoryFormater(data?.data?.result)?.map((category: any) => (
-              <div key={category.id} className="space-y-1">
+          <div className="flex-1 overflow-y-auto md:mt-20 py-4 px-4 space-y-1">
+            {CategoryFormater(data?.data?.result)?.map((category: any) => {
+              
+              console.log("Category: ", category); // Log each category
+              return (
+                <div key={category.id} className="space-y-1">
                 {category.subcategories.length > 0 ? (
                   <Link to={`/products/${category.id}`}>
                     <SubNavItem
                       name={category.name}
+                      image={category.image}
                       items={category.subcategories}
                       id={category.id} // Pass category ID
                       onClick={handleCategoryClick} // Pass click handler
@@ -44,12 +48,22 @@ const Sidebar = ({ setIsMobileMenuOpen, isMobileMenuOpen }: any) => {
                 ) : (
                   <Link to={`/products/${category.id}`}>
                     <NavItem id={category.id} onClick={handleCategoryClick}>
-                      {category.name}
+                      <div className="flex items-center gap-2 justify-start space-x-2">
+                        {category.image && (
+                          <img
+                            src={category.image}
+                            alt={category.name}
+                            className="w-9 h-9 rounded-full"
+                          />
+                        )}
+                        <span className="">{category.name}</span>
+                      </div>
                     </NavItem>
                   </Link>
                 )}
               </div>
-            ))}
+              )
+            })}
           </div>
           {/* ... (rest of the code) */}
         </div>

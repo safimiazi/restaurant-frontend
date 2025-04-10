@@ -4,7 +4,7 @@ import { NavItem } from "./NavItem";
 import { Link } from "react-router-dom";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export const SubNavItem = ({ items, name, id, onClick }: any) => {
+export const SubNavItem = ({ items, name, id, onClick, image }: any) => {
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
 
   function toggleSubMenu(menu: string) {
@@ -23,7 +23,15 @@ export const SubNavItem = ({ items, name, id, onClick }: any) => {
         }}
         className="flex items-center w-full px-3 py-2 text-sm rounded-md transition-colors text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-[#1F1F23]"
       >
-        <span className="flex-1 text-left text-base">{name}</span>
+        <span className="flex-1 text-left text-base">
+          {" "}
+          <div className="flex items-center gap-2 justify-start space-x-2">
+            {image && (
+              <img src={image} alt={name} className="w-9 h-9 rounded-full" />
+            )}
+            <span className="">{name}</span>
+          </div>
+        </span>
         {isOpen ? (
           <ChevronDown className="h-4 w-4" />
         ) : (
@@ -40,6 +48,7 @@ export const SubNavItem = ({ items, name, id, onClick }: any) => {
                     <Link to={`/products/${item.id}`}>
                       <SubNavItem
                         items={item.subcategories}
+                        image={item.image}
                         name={item.name}
                         id={item.id} // Pass category ID
                         onClick={onClick} // Pass onClick handler
@@ -48,7 +57,16 @@ export const SubNavItem = ({ items, name, id, onClick }: any) => {
                   ) : (
                     <Link to={`/products/${item.id}`}>
                       <NavItem id={item.id} onClick={onClick}>
-                        {item.name}
+                        <div className="flex items-center gap-2 justify-start space-x-2">
+                          {item.image && (
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="w-9 h-9 rounded-full"
+                            />
+                          )}
+                          <span className="">{item.name}</span>
+                        </div>
                       </NavItem>
                     </Link>
                   )}

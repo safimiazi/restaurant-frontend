@@ -69,15 +69,13 @@ const Category = () => {
       }
   
       if (values.categories?.length) {
-        values.categories.forEach((id: string) => {
-          formData.append("categories", id);
-        });
+        formData.append("categories", JSON.stringify(values.categories));
+        
       }
   
       if (values.subcategories?.length) {
-        values.subcategories.forEach((id: string) => {
-          formData.append("subcategories", id);
-        });
+        formData.append("subcategories", JSON.stringify(values.subcategories));
+
       }
   
       // Append image file (if exists)
@@ -407,7 +405,6 @@ const Category = () => {
           <Form.Item label="Status" name="status">
             <Select
               placeholder="Select Status"
-              defaultValue={"active"}
               options={[
                 { value: "active", label: <span>Active</span> },
                 { value: "inactive", label: <span>In Active</span> },

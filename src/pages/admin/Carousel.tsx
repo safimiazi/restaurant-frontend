@@ -238,7 +238,7 @@ const Carousel = () => {
       </div>
 
       <Modal
-        title={Edit ? "Edit Brand" : "Add Brand"}
+        title={Edit ? "Edit Carousel" : "Add Carousel"}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
