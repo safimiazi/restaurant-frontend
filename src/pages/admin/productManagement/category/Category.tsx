@@ -51,37 +51,73 @@ const Category = () => {
   // Handle Add or Update Category
   const handleAddOrUpdate = async (values: any) => {
     try {
+      const formData = new FormData();
+  
+      // Append simple fields
+      formData.append("name", values.name);
+      formData.append("description", values.description || "");
+      formData.append("status", values.status || "inactive");
+      formData.append("type", values.type);
+  
+      // Append conditional relationships
+      if (values.parentCategory) {
+        formData.append("parentCategory", values.parentCategory);
+      }
+  
+      if (values.category) {
+        formData.append("category", values.category);
+      }
+  
+      if (values.categories?.length) {
+        values.categories.forEach((id: string) => {
+          formData.append("categories", id);
+        });
+      }
+  
+      if (values.subcategories?.length) {
+        values.subcategories.forEach((id: string) => {
+          formData.append("subcategories", id);
+        });
+      }
+  
+      // Append image file (if exists)
+      if (fileList.length > 0 && fileList[0]?.originFileObj) {
+        formData.append("image", fileList[0].originFileObj);
+      }
+  
       let res;
       if (editing) {
-        // Edit existing category
+        // Update
         res = await categoryPut({
-          data: values,
           id: editing._id,
+          data: formData,
         }).unwrap();
       } else {
-        // Add new category
-        res = await categoryPost(values).unwrap();
+        // Add
+        res = await categoryPost(formData).unwrap();
       }
-
+  
       Swal.fire({
         title: "Good job!",
         text: `${res.message}`,
         icon: "success",
       });
-
-      // Reset the form and close the modal after successful submission
+  
+      // Reset form
       form.resetFields();
+      setFileList([]);
       setediting(null);
       setIsModalOpen(false);
-      setCategoryType("parent"); // Reset category type
+      setCategoryType("parent");
     } catch (error: any) {
       Swal.fire({
         title: "Error!",
-        text: `${error?.data?.message}`,
+        text: `${error?.data?.message || "Something went wrong!"}`,
         icon: "error",
       });
     }
   };
+  
 
   // Handle Bulk Delete
   const deleteMultiple = async (ids: string[]) => {
@@ -369,7 +405,7 @@ const Category = () => {
             name="image"
             label="Upload Image"
             rules={[
-              { required: true, message: "Please upload product images" },
+              { required: false, message: "Please upload product images"},
             ]}
           >
             <Upload
