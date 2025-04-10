@@ -189,6 +189,20 @@ const Category = () => {
       ),
     },
     {
+      header: "Image",
+      Cell: ({ row }: any) => <span>
+        {row.image ? (
+          <img
+            src={row.image}
+            alt="Category"
+            className="w-10 h-10 rounded object-cover"
+          />
+        ) : (
+          <span className="text-gray-500">No Image</span>
+        )}
+      </span>,
+    },
+    {
       header: "Name",
       Cell: ({ row }: any) => <span className="capitalize">{row.name}</span>,
     },
