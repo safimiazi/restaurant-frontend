@@ -78,7 +78,7 @@ export const baseApi = createApi({
     "Category",
     "attribute",
     "brand",
-    "unit",
+    "variants",
     "user",
     "carousel",
     "payment",

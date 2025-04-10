@@ -8,14 +8,14 @@ import CustomTable from "../../../../components/common/CustomTable";
 import ReusableForm from "../../../../components/Reusable/ReusableForm";
 import Swal from "sweetalert2";
 import {
-  useCreateMutation,
-  useUpdateMutation,
-  useGetAllQuery,
-  useBulkSoftDeleteMutation,
-  useSoftDeleteMutation,
-} from "../../../../redux/api/unitApi/UnitApi";
+  useCreateVariantMutation,
+  useUpdateVariantMutation,
+  useSoftDeleteVariantMutation,
+  useBulkSoftDeleteVariantMutation,
+  useGetAllVariantQuery
+} from "../../../../redux/api/variantsApi/Variants";
 
-const Unit = () => {
+const Variants = () => {
   const [form] = Form.useForm();
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [initialValues, setiInitialValues] = useState<any | null>(null);
@@ -26,16 +26,16 @@ const Unit = () => {
     pageSize: 10,
   });
   const [globalFilter, setGlobalFilter] = useState("");
-  const { data } = useGetAllQuery({
+  const { data } = useGetAllVariantQuery({
     pageIndex: pagination.pageIndex,
     pageSize: pagination.pageSize,
     isDelete: false,
     search: globalFilter,
   });
-  const [create, { isLoading: isPostLoading }] = useCreateMutation();
-  const [update, { isLoading: isEditLoading }] = useUpdateMutation();
-  const [softDelete] = useSoftDeleteMutation();
-  const [bulkSoftDelete] = useBulkSoftDeleteMutation();
+  const [createVariant, { isLoading: isPostLoading }] = useCreateVariantMutation();
+  const [updateVariant, { isLoading: isEditLoading }] = useUpdateVariantMutation();
+  const [softDeleteVariant] = useSoftDeleteVariantMutation();
+  const [bulkSoftDeleteVariant] = useBulkSoftDeleteVariantMutation();
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const Unit = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await softDelete({ id }).unwrap();
+      const res = await softDeleteVariant({ id }).unwrap();
       Swal.fire({
         title: "Good job!",
         text: `${res.message}`,
@@ -148,7 +148,7 @@ const Unit = () => {
       name: "name",
       label: "Name",
       type: "text",
-      placeholder: "Enter unit Option Name",
+      placeholder: "Enter Variants Option Name",
       rules: [{ required: Edit ? false : true, message: "Name is required!" }],
     },
   ];
@@ -157,7 +157,7 @@ const Unit = () => {
     try {
       let res;
       if (Edit) {
-        res = await update({
+        res = await updateVariant({
           data: values,
           id: Edit._id,
         }).unwrap();
@@ -168,7 +168,7 @@ const Unit = () => {
           icon: "success",
         });
       } else {
-        res = await create(values).unwrap();
+        res = await createVariant(values).unwrap();
         Swal.fire({
           title: "Good job!",
           text: `${res.message}`,
@@ -187,9 +187,8 @@ const Unit = () => {
   };
 
   const deleteMultiple = async (ids: string[]) => {
-
     try {
-      const res = await bulkSoftDelete(ids).unwrap();
+      const res = await bulkSoftDeleteVariant(ids).unwrap();
       Swal.fire({
         title: "Good job!",
         text: `${res.message}`,
@@ -209,7 +208,7 @@ const Unit = () => {
     <div style={{ padding: 20 }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <Button type="primary" onClick={() => setIsModalOpen(true)}>
-          Add unit
+          Add Variants
         </Button>
 
         <CustomTable
@@ -232,7 +231,7 @@ const Unit = () => {
       </div>
 
       <Modal
-        title={Edit ? "Edit unit" : "Add unit"}
+        title={Edit ? "Edit Variants" : "Add Variants"}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
@@ -249,4 +248,4 @@ const Unit = () => {
   );
 };
 
-export default Unit;
+export default Variants;

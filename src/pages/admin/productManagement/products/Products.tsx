@@ -32,7 +32,7 @@ import {
 import { useGetCategoryDataQuery } from "../../../../redux/api/categoryApi/CategoryApi";
 import { useGetbrandDataQuery } from "../../../../redux/api/brandApi/BrandApi";
 import { useGetattributeDataQuery } from "../../../../redux/api/attributeApi/AttributeApi";
-import { useGetAllQuery } from "../../../../redux/api/unitApi/UnitApi";
+import { useGetAllQuery } from "../../../../redux/api/variantsApi/Variants";
 import Swal from "sweetalert2";
 import ProductDetailsModal from "../../../../components/common/ProductDetailsModal";
 

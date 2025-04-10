@@ -23,7 +23,6 @@ import Products from "../pages/admin/productManagement/products/Products";
 import AttributeOption from "../pages/admin/productManagement/attributeOption/AttributeOption";
 import Attribute from "../pages/admin/productManagement/attribute/Attribute";
 import Brand from "../pages/admin/productManagement/brand/Brand";
-import Unit from "../pages/admin/productManagement/unit/Unit";
 import Coupon from "../pages/admin/CouponsAndDiscount/coupon/Coupon";
 import Order from "../pages/admin/orderManagement/order/Order";
 import Customer from "../pages/admin/userManagement/Customer";
@@ -33,6 +32,7 @@ import InventoryReport from "../pages/admin/reports/InventoryReport/InventoryRep
 import SalesReport from "../pages/admin/reports/salesReport/SalesReport";
 import Dashboard from "../pages/admin/dashboard/Dashboard";
 import Carousel from "../pages/admin/Carousel";
+import Variants from "../pages/admin/productManagement/variants/Variants";
 
 export type IAdminPath = {
   name: string;
@@ -68,10 +68,10 @@ export const adminPaths: IAdminPath[] = [
         element: <Category />,
       },
       {
-        name: "Unit",
+        name: "Variants",
         icon: Ruler,
-        path: "unit",
-        element: <Unit />,
+        path: "variants",
+        element: <Variants />,
       },
       {
         name: "Product",
