@@ -8,11 +8,9 @@ import {
   PieChart,
   Archive,
   Tag,
-  List,
   Box,
   Layers,
   Ruler,
-  ListChecks,
   Heart,
   ClipboardList,
   TrendingUp,
@@ -20,8 +18,7 @@ import {
 } from "lucide-react";
 import Category from "../pages/admin/productManagement/category/Category";
 import Products from "../pages/admin/productManagement/products/Products";
-import AttributeOption from "../pages/admin/productManagement/attributeOption/AttributeOption";
-import Attribute from "../pages/admin/productManagement/attribute/Attribute";
+
 import Brand from "../pages/admin/productManagement/brand/Brand";
 import Coupon from "../pages/admin/CouponsAndDiscount/coupon/Coupon";
 import Order from "../pages/admin/orderManagement/order/Order";
@@ -79,18 +76,7 @@ export const adminPaths: IAdminPath[] = [
         path: "product",
         element: <Products />,
       },
-      {
-        name: "Attribute Option",
-        icon: ListChecks,
-        path: "attribute-option",
-        element: <AttributeOption />,
-      },
-      {
-        name: "Attribute",
-        icon: List,
-        path: "attribute",
-        element: <Attribute />,
-      },
+
     ],
   },
   {
