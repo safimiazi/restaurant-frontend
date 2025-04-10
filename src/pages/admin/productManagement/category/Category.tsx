@@ -255,7 +255,7 @@ const Category = () => {
   return (
     <div className="p-4">
       <Button type="primary" onClick={() => setIsModalOpen(true)}>
-        Add New Category
+        Add New Food Category
       </Button>
 
       {/* Table Display */}
@@ -279,7 +279,7 @@ const Category = () => {
 
       {/* Modal for Adding & Editing */}
       <Modal
-        title={editing ? "Edit Category" : "Add New Category"}
+        title={editing ? "Edit Food Category" : "Add New Food Category"}
         open={isModalOpen}
         onCancel={() => {
           setIsModalOpen(false);
@@ -438,7 +438,7 @@ const Category = () => {
 
           <Form.Item>
             <Button type="primary" htmlType="submit">
-              {editing ? "Update Category" : "Add Category"}
+              {editing ? "Update Food Category" : "Add Food Category"}
             </Button>
           </Form.Item>
         </Form>
