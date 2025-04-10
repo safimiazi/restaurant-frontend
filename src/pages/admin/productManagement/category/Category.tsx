@@ -1,9 +1,16 @@
-
-
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {  useState } from "react";
-import { Form, Input, Button, Modal, Popconfirm, notification, Select } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import {
+  Form,
+  Input,
+  Button,
+  Modal,
+  Popconfirm,
+  notification,
+  Select,
+  Upload,
+} from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import CustomTable from "../../../../components/common/CustomTable";
 import {
   useCategoryBulkDeleteMutation,
@@ -13,6 +20,7 @@ import {
   useGetCategoryDataQuery,
 } from "../../../../redux/api/categoryApi/CategoryApi";
 import Swal from "sweetalert2";
+import compressImage from "../../../../utils/imageCompression";
 
 const Category = () => {
   const [form] = Form.useForm();
@@ -36,7 +44,10 @@ const Category = () => {
   const [categoryPut] = useCategoryPutMutation();
   const [categoryDelete] = useCategoryDeleteMutation();
   const [categoryBulkDelete] = useCategoryBulkDeleteMutation();
-
+  const [fileList, setFileList] = useState<any[]>([]);
+  const handleUploadChange = ({ fileList }: any) => {
+    setFileList(fileList);
+  };
   // Handle Add or Update Category
   const handleAddOrUpdate = async (values: any) => {
     try {
@@ -91,13 +102,12 @@ const Category = () => {
     }
   };
 
-
-
   // Handle Edit
   const handleEdit = (editData: any) => {
     console.log(editData);
-    setCategoryType(editData.type)
-    form.setFieldsValue({name: editData.name,
+    setCategoryType(editData.type);
+    form.setFieldsValue({
+      name: editData.name,
       description: editData.description,
       status: editData.status,
       type: editData.type,
@@ -105,8 +115,7 @@ const Category = () => {
       category: editData.category?._id,
       categories: editData.categories.map((cat: any) => cat._id),
       subcategories: editData.subcategories.map((cat: any) => cat._id),
-
-    })
+    });
     setediting(editData);
     setIsModalOpen(true);
   };
@@ -149,9 +158,7 @@ const Category = () => {
     },
     {
       header: "Category Type",
-      Cell: ({ row }: any) => (
-        <span className="">{row?.type || "N/A"}</span>
-      ),
+      Cell: ({ row }: any) => <span className="">{row?.type || "N/A"}</span>,
     },
     {
       header: "Description",
@@ -174,6 +181,28 @@ const Category = () => {
       Cell: ({ row }: any) => new Date(row.createdAt).toLocaleDateString(),
     },
   ];
+
+  const beforeUpload = async (file: File) => {
+    try {
+      const compressedFile = await compressImage(file);
+      if (compressedFile) {
+        setFileList([
+          ...fileList,
+          {
+            uid: `${file.name}-${Date.now()}`,
+            name: file.name,
+            status: "done",
+            url: URL.createObjectURL(compressedFile),
+            originFileObj: compressedFile, // Store the compressed file
+          },
+        ]);
+      }
+      return false; // Prevent default upload behavior
+    } catch (error) {
+      console.error("Error compressing image:", error);
+      return false; // Ensure the return type matches the expected type
+    }
+  };
 
   return (
     <div className="p-4">
@@ -212,7 +241,7 @@ const Category = () => {
         }}
         footer={null}
       >
-        <Form form={form} onFinish={handleAddOrUpdate} layout="vertical" >
+        <Form form={form} onFinish={handleAddOrUpdate} layout="vertical">
           {/* Category Label Type */}
           <Form.Item label="Category Type" name="type">
             <Select
@@ -240,7 +269,10 @@ const Category = () => {
               label="Parent Category"
               name="parentCategory"
               rules={[
-                { required: false, message: "Please select a parent category!" },
+                {
+                  required: false,
+                  message: "Please select a parent category!",
+                },
               ]}
             >
               <Select
@@ -257,7 +289,9 @@ const Category = () => {
             <Form.Item
               label="Category"
               name="category"
-              rules={[{ required: false, message: "Please select a category!" }]}
+              rules={[
+                { required: false, message: "Please select a category!" },
+              ]}
             >
               <Select
                 placeholder="Select category"
@@ -329,6 +363,30 @@ const Category = () => {
                 { value: "inactive", label: <span>In Active</span> },
               ]}
             />
+          </Form.Item>
+
+          <Form.Item
+            name="image"
+            label="Upload Image"
+            rules={[
+              { required: true, message: "Please upload product images" },
+            ]}
+          >
+            <Upload
+              listType="picture-card"
+              fileList={fileList}
+              beforeUpload={beforeUpload}
+              onChange={handleUploadChange}
+              multiple
+              maxCount={1}
+            >
+              {fileList.length >= 5 ? null : (
+                <div>
+                  <PlusOutlined />
+                  <div style={{ marginTop: 8 }}>Upload</div>
+                </div>
+              )}
+            </Upload>
           </Form.Item>
 
           <Form.Item>
