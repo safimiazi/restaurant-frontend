@@ -23,7 +23,6 @@ import {
 import CustomTable from "../../../../components/common/CustomTable";
 import MaxWidth from "../../../../wrapper/MaxWidth";
 import {
-  useBulkDeleteMutation,
   useGetproductDataQuery,
   useProductDeleteMutation,
   useProductPostMutation,
@@ -54,7 +53,6 @@ const Products = () => {
     search: globalFilter,
   });
 
-
   const { data: categories } = useGetCategoryDataQuery({
     isDelete: false,
     search: globalFilter,
@@ -73,7 +71,6 @@ const Products = () => {
   const [ProductUpdate, { isLoading: isEditLoading }] =
     useProductUpdateMutation();
   const [productDelete] = useProductDeleteMutation();
-  const [bulkDelete] = useBulkDeleteMutation();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -105,36 +102,27 @@ const Products = () => {
   };
 
   const handleAddOrUpdate = async (values: any) => {
-    console.log(values);
     try {
       const formData = new FormData();
 
       // Append product details
-      formData.append("productName", values.productName || ""); // Default empty string
-      formData.append("skuCode", values.skuCode || ""); // Default empty string
-      formData.append("productCategory", values.productCategory || ""); // Default empty string or null
-      formData.append("productBrand", values.productBrand || ""); // Default empty string or null
-      formData.append("productWeight", values.productWeight || ""); // Default empty string
-      formData.append("productVariants", values.productVariants || ""); // Default empty string
+      formData.append("productName", values.productName || "");
+      formData.append("skuCode", values.skuCode || "");
+      formData.append("productCategory", values.productCategory || "");
+      formData.append("productBrand", values.productBrand || "");
       formData.append(
-        "productPurchasePoint",
-        values.productPurchasePoint || ""
-      ); // Default empty string
-      formData.append("productBuyingPrice", values.productBuyingPrice || 0); // Default 0
-      formData.append("productSellingPrice", values.productSellingPrice || 0); // Default 0
-      formData.append("productOfferPrice", values.productOfferPrice || 0); // Default 0
-      formData.append("productStock", values.productStock || 0); // Default 0
+        "productVariants",
+        JSON.stringify(values.productVariants) || ""
+      );
+      formData.append("productBuyingPrice", values.productBuyingPrice || 0);
+      formData.append("productSellingPrice", values.productSellingPrice || 0);
+      formData.append("productOfferPrice", values.productOfferPrice || 0);
+      formData.append("productStock", values.productStock || 0);
       formData.append(
         "isFeatured",
         values.isFeatured !== undefined ? values.isFeatured : false
-      ); // Default false
-      formData.append(
-        "haveVarient",
-        values.haveVarient !== undefined ? values.haveVarient : false
-      ); // Default false
-      formData.append("productDescription", values.productDescription || ""); // Default empty string
-      formData.append("variant", values?.variant || null); // Default null if no variant
-
+      );
+      formData.append("productDescription", values.productDescription || "");
       if (featureImageList && featureImageList[0]?.originFileObj) {
         formData.append(
           "productFeatureImage",
@@ -146,15 +134,10 @@ const Products = () => {
 
       if (fileList) {
         fileList.forEach((file: any) => {
-          formData.append("productImages", file?.originFileObj || null); // Ensure this field name is correct
+          formData.append("productImages", file?.originFileObj || null); 
         });
       } else {
         console.error("No additional images selected.");
-      }
-
-      // Handle color-related data
-      if (values.variantcolor && values.variantcolor.length > 0) {
-        formData.append("variantcolor", JSON.stringify(values.variantcolor));
       }
 
       // Submit the form
@@ -177,9 +160,9 @@ const Products = () => {
       setOpenProductDrawer(false);
       setProductImages([]);
       setProductFeatureImage(null);
-      setLoading(false)
+      setLoading(false);
     } catch (error: any) {
-      setLoading(false)
+      setLoading(false);
 
       Swal.fire({
         title: "Error!",
@@ -206,18 +189,15 @@ const Products = () => {
       skuCode: product?.skuCode,
       productCategory: product?.productCategory._id,
       productBrand: product?.productBrand._id,
-      productWeight: product?.productWeight,
-      productVariants: product?.productVariants._id,
-      productPurchasePoint: product?.productPurchasePoint,
+      productVariants: product?.productVariants.map(
+        (variant: any) => variant._id
+      ),
       productBuyingPrice: product?.productBuyingPrice,
       productSellingPrice: product?.productSellingPrice,
       productOfferPrice: product?.productOfferPrice,
       productStock: product?.productStock,
       isFeatured: product?.isFeatured,
-      haveVarient: product?.haveVarient,
       productDescription: product?.productDescription,
-      variant: product.variant?._id,
-      variantcolor: product?.variantcolor?.map((item: any) => item._id),
     });
     setProductImages(product?.productImages);
     setProductFeatureImage(product?.productFeatureImage);
@@ -299,8 +279,35 @@ const Products = () => {
       Cell: ({ row }: any) => <span>{row.productBrand.name}</span>,
     },
     {
+      header: "FEATURED",
+      Cell: ({ row }: any) => (
+        <div>
+          <span
+            className={`text-sm px-2 py-1 rounded-md font-medium ${
+              row.isFeatured
+                ? "bg-green-100 text-green-700 border border-green-300"
+                : "bg-red-100 text-red-700 border border-red-300"
+            }`}
+          >
+            {row.isFeatured ? "Yes" : "No"}
+          </span>
+        </div>
+      ),
+    },
+    {
       header: "Variants",
-      Cell: ({ row }: any) => <span>{row.productVariants.name}</span>,
+      Cell: ({ row }: any) => (
+        <div className="flex flex-wrap gap-1">
+          {row.productVariants.map((variant: any, index: number) => (
+            <span
+              key={index}
+              className="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded"
+            >
+              {variant.name}
+            </span>
+          ))}
+        </div>
+      ),
     },
 
     {
@@ -319,10 +326,14 @@ const Products = () => {
 
   const deleteMultiple = async (ids: string[]) => {
     try {
-      const res = await bulkDelete({ ids }).unwrap();
+      const res = await Promise.all(
+        ids?.map(async (id) => {
+          return await productDelete({ id }).unwrap();
+        })
+      );
       Swal.fire({
         title: "Good job!",
-        text: `${res.message}`,
+        text: `${res[0].message}`,
         icon: "success",
       });
       setSelectedRows([]);
@@ -438,37 +449,19 @@ const Products = () => {
           </Form.Item>
 
           <Form.Item
-            label="Weight"
-            name="productWeight"
-            rules={[
-              { required: false, message: "Please enter the product weight" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
             label="Variants"
             name="productVariants"
-            rules={[{ required: true, message: "Please select a Variants" }]}
+            rules={[{ required: false, message: "Please select a Variants" }]}
           >
             <Select
+              mode="multiple"
+              allowClear
               placeholder="Select a Variants"
               options={variants?.data?.result.map((item: any) => ({
                 label: item.name,
                 value: item._id,
               }))}
             />
-          </Form.Item>
-
-          <Form.Item
-            label="Purchase Point"
-            name="productPurchasePoint"
-            rules={[
-              { required: false, message: "Please enter the purchase point" },
-            ]}
-          >
-            <Input />
           </Form.Item>
 
           <Form.Item
@@ -540,7 +533,10 @@ const Products = () => {
             label="Images"
             name="productImages"
             rules={[
-              { required: editingProduct ? false : true, message: "please select product images." },
+              {
+                required: editingProduct ? false : true,
+                message: "please select product images.",
+              },
             ]}
           >
             <div className="space-y-2">
@@ -583,9 +579,6 @@ const Products = () => {
           <Form.Item name="isFeatured" valuePropName="checked">
             <Checkbox>Is Featured?</Checkbox>
           </Form.Item>
-
-
-      
 
           <Form.Item>
             <Button loading={loading} type="primary" htmlType="submit">
