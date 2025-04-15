@@ -34,6 +34,7 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { openModal } from "../../redux/features/auth/loginRegistrationSlice";
 import { RootState } from "../../redux/store";
+import { MdDetails } from "react-icons/md";
 
 const ProductCard = ({ product }: any) => {
   const dispatch = useDispatch();
@@ -164,25 +165,7 @@ const ProductCard = ({ product }: any) => {
       </Swiper>
     </div>
 
-    {/* Quick Action Buttons (Compare & Quick View) */}
-    <div className="absolute z-50 bottom-2 left-1/2 transform -translate-x-1/2 translate-y-4 flex gap-4 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-      <Tooltip title="Quick View">
-        <div
-          onClick={() => setModalOpen(true)}
-          className="p-2 rounded-full bg-blue-500 cursor-pointer hover:bg-blue-600 transition-colors"
-        >
-          <Eye className="text-white" size={15} />
-        </div>
-      </Tooltip>
-      <Tooltip title="Compare">
-        <div
-          onClick={() => addToCompare(product)}
-          className="p-2 rounded-full bg-blue-500 cursor-pointer hover:bg-blue-600 transition-colors"
-        >
-          <GitCompare className="text-white" size={15} />
-        </div>
-      </Tooltip>
-    </div>
+  
   </div>
 
   {/* Swiper Navigation Controls */}
@@ -234,17 +217,19 @@ const ProductCard = ({ product }: any) => {
 {/* Pricing */}
 <div className="mt-2 flex items-center gap-2">
   {product?.productOfferPrice > 0 && product?.productOfferPrice < product?.productSellingPrice ? (
-    <>
-      <p className="text-lg font-bold text-blue-500">
-        ${product?.productOfferPrice} {/* Show offer price */}
-      </p>
-      <p className="text-sm line-through text-gray-500">
-        ${product?.productSellingPrice} {/* Show original price */}
-      </p>
-    </>
+    <> 
+  <p className="text-lg font-bold text-blue-600">
+    ৳{product?.productOfferPrice} {/* Show offer price in Taka */}
+  </p>
+  {product?.productOfferPrice < product?.productSellingPrice && (
+    <p className="text-sm line-through text-gray-400">
+      ৳{product?.productSellingPrice} {/* Show original price in Taka */}
+    </p>
+  )}
+</>
   ) : (
     <p className="text-lg font-bold">
-      ${product?.productSellingPrice} {/* Show only original price */}
+      ৳{product?.productSellingPrice} {/* Show only original price */}
     </p>
   )}
 </div>
@@ -270,78 +255,95 @@ const ProductCard = ({ product }: any) => {
       )}
     </div>
 
-    {/* Action Buttons */}
-    <div className="mt-auto flex justify-between items-center pt-4">
-      {/* Wishlist Button */}
-      <Tooltip
-        title={`${isInWishlist ? "Already Wishlisted" : "Add to Wishlist"}`}
-      >
-        <button
-          disabled={isInWishlist}
-          className="cursor-pointer hover:scale-110 transition-transform"
-          aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart
-            onClick={handleAddToWishlist}
-            className={`text-blue-500 transition duration-300 ${
-              isInWishlist ? "fill-current" : ""
-            }`}
-            size={24}
-          />
-        </button>
-      </Tooltip>
+ {/* Action Buttons */}
+<div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-100">
+  {/* Wishlist Button */}
+  <Tooltip title={isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}>
+    <button
+      onClick={handleAddToWishlist}
+      disabled={isInWishlist}
+      className={`p-2 cursor-pointer rounded-full transition-all duration-300 ${isInWishlist 
+        ? 'bg-pink-50 text-pink-500 hover:bg-pink-100' 
+        : 'bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-pink-500'}`}
+      aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
+    >
+      <Heart 
+        size={20} 
+        className={isInWishlist ? "fill-current" : ""}
+      />
+    </button>
+  </Tooltip>
 
-      {/* View Details Link */}
-      <Link
-        to={`/details/${product?._id}`}
-        className="text-blue-500 hover:text-blue-600 cursor-pointer underline transition-colors"
-      >
-        Details
-      </Link>
+  {/* Quick View Button */}
+  <Tooltip title="Quick View">
+    <button
+      onClick={() => setModalOpen(true)}
+      className="p-2 cursor-pointer rounded-full bg-gray-50 text-gray-600 hover:bg-blue-50 hover:text-blue-500 transition-all duration-300"
+    >
+      <Eye size={20} />
+    </button>
+  </Tooltip>
 
-      {/* Cart Controls */}
-      <div>
-        {product?.productStock > 0 && (
-          <div>
-            {cartProduct ? (
-              <div className="flex items-center gap-2">
-                <button
-                  disabled={removing}
-                  onClick={() => handleAddToCart("removeToCart")}
-                  className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300 transition-colors"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus size={15} />
-                </button>
-                <div>{cartProduct?.quantity || 0}</div>
-                <button
-                  disabled={posting}
-                  onClick={() => handleAddToCart("addToCart")}
-                  className="px-2 py-1 bg-gray-200 rounded cursor-pointer hover:bg-gray-300 transition-colors"
-                  aria-label="Increase quantity"
-                >
-                  <Plus size={15} />
-                </button>
-              </div>
-            ) : (
-              <Tooltip title="Add to Cart">
-                <button
-                  disabled={posting}
-                  onClick={() => handleAddToCart("addToCart")}
-                  className="hover:scale-110 cursor-pointer transition-transform"
-                  aria-label="Add to cart"
-                >
-                  <ShoppingCart
-                    className="text-blue-500 transition duration-300"
-                    size={24}
-                  />
-                </button>
-              </Tooltip>
-            )}
-          </div>
-        )}
-      </div>
+  {/* Compare Button */}
+  <Tooltip title="Compare Product">
+    <button
+      onClick={() => addToCompare(product)}
+      className="p-2 cursor-pointer rounded-full bg-gray-50 text-gray-600 hover:bg-green-50 hover:text-green-500 transition-all duration-300"
+    >
+      <GitCompare size={20} />
+    </button>
+  </Tooltip>
+
+  {/* Details Button */}
+  <Tooltip title="View Details">
+    <Link
+      to={`/details/${product?._id}`}
+      className="p-2 cursor-pointer rounded-full bg-gray-50 text-gray-600 hover:bg-purple-50 hover:text-purple-500 transition-all duration-300"
+    >
+      <MdDetails size={20} />
+    </Link>
+  </Tooltip>
+
+  {/* Cart Controls */}
+  {product?.productStock > 0 && (
+    <div>
+      {cartProduct ? (
+        <div className="flex items-center gap-2 bg-blue-50 rounded-full px-3 py-1">
+          <button
+            disabled={removing}
+            onClick={() => handleAddToCart("removeToCart")}
+            className="text-blue-600 cursor-pointer hover:text-blue-700 transition-colors"
+            aria-label="Decrease quantity"
+          >
+            <Minus size={16} />
+          </button>
+          <span className="text-sm font-medium text-blue-700 min-w-[20px] text-center">
+            {cartProduct?.quantity || 0}
+          </span>
+          <button
+            disabled={posting}
+            onClick={() => handleAddToCart("addToCart")}
+            className="text-blue-600 cursor-pointer hover:text-blue-700 transition-colors"
+            aria-label="Increase quantity"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
+      ) : (
+        <Tooltip title="Add to Cart">
+          <button
+            disabled={posting}
+            onClick={() => handleAddToCart("addToCart")}
+            className="p-2 cursor-pointer rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300"
+            aria-label="Add to cart"
+          >
+            <ShoppingCart size={20} />
+          </button>
+        </Tooltip>
+      )}
     </div>
+  )}
+</div>
   </div>
 
   {/* Quick View Modal */}
