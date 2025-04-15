@@ -186,79 +186,104 @@ const ProductCard = ({ product }: any) => {
     </button>
   </div>
 
+  <div className="flex flex-col flex-grow">
+
+
+
   {/* Product Information Section */}
   <div className="flex flex-col flex-grow">
-    {/* Basic Info */}
-    <h3 className="text-lg font-semibold">
-      {truncateText(product?.productName, 20)}
-    </h3>
-    <p className="text-sm text-gray-600">
-      {truncateText(product?.productDescription, 50)}
-    </p>
-
-    {/* Brand Information */}
-    <div className="flex items-center gap-2 mt-2">
-      {product?.productBrand?.image && (
-        <img
-          src={product.productBrand.image}
-          alt="Brand"
-          className="w-6 h-6 rounded-full"
-        />
+    {/* SKU and Sales Count */}
+    <div className="flex justify-between items-center mb-1">
+      <span className="text-xs text-gray-500">SKU: {product?.skuCode}</span>
+      {product?.salesCount > 0 && (
+        <span className="text-xs text-gray-500">{product.salesCount} sold</span>
       )}
-      <p className="text-sm text-gray-500">{product?.productBrand?.name}</p>
     </div>
-    
-    {/* Category */}
-    <div>
-      <p className="text-sm text-gray-500">
-        Category: {product?.productCategory?.name}
-      </p>
-    </div>
-{/* Pricing */}
-<div className="mt-2 flex items-center gap-2">
-  {product?.productOfferPrice > 0 && product?.productOfferPrice < product?.productSellingPrice ? (
-    <> 
-  <p className="text-lg font-bold text-blue-600">
-    ৳{product?.productOfferPrice} {/* Show offer price in Taka */}
-  </p>
-  {product?.productOfferPrice < product?.productSellingPrice && (
-    <p className="text-sm line-through text-gray-400">
-      ৳{product?.productSellingPrice} {/* Show original price in Taka */}
-    </p>
-  )}
-</>
-  ) : (
-    <p className="text-lg font-bold">
-      ৳{product?.productSellingPrice} {/* Show only original price */}
-    </p>
-  )}
-</div>
+    <Tooltip title={"View Details"} placement="top">
 
-    {/* Color Variants */}
-    <div className="flex gap-2 mt-2">
-      {product?.variantcolor?.map((color: any, index: number) => (
-        <span
-          key={index}
-          className="w-6 h-6 rounded-full border border-gray-300"
-          style={{ backgroundColor: color?.colorCode }}
-          aria-label={color?.colorName}
-        ></span>
-      ))}
+   {/* Product Name */}
+   <Link to={`/details/${product?._id}`} className="group">
+      <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+        {product?.productName}
+      </h3>
+    </Link>
+
+    </Tooltip>
+ 
+
+    {/* Brand and Category */}
+    <div className="flex items-center justify-between mt-1">
+      <div className="flex items-center gap-2">
+        {product?.productBrand?.image && (
+          <img
+            src={product.productBrand.image}
+            alt={product.productBrand.name}
+            className="w-6 h-6 rounded-full object-cover"
+          />
+        )}
+        <span className="text-sm text-gray-600">{product?.productBrand?.name}</span>
+      </div>
+      <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+        {product?.productCategory?.name}
+      </span>
+    </div>
+
+    {/* Variants */}
+    {product?.productVariants?.length > 0 && (
+      <div className="mt-2">
+        <p className="text-xs text-gray-500 mb-1">Available:</p>
+        <div className="flex flex-wrap gap-1">
+          {product.productVariants.map((variant: any) => (
+            <span 
+              key={variant._id}
+              className="text-xs bg-gray-100 px-2 py-1 rounded-full"
+            >
+              {variant.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Pricing */}
+    <div className="mt-3 mb-2">
+      <div className="flex items-center gap-2">
+        <span className="text-xl font-bold text-gray-900">
+          ৳{product?.productOfferPrice > 0 ? product.productOfferPrice : product?.productSellingPrice}
+        </span>
+        {product?.productOfferPrice > 0 && product?.productOfferPrice < product?.productSellingPrice && (
+          <span className="text-sm line-through text-gray-400">
+            ৳{product?.productSellingPrice}
+          </span>
+        )}
+      </div>
+  
     </div>
 
     {/* Stock Status */}
-    <div>
+    <div className="mb-3">
       {product?.productStock > 0 ? (
-        <p className="text-green-500">In Stock</p>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+          <span className="text-sm text-green-600">
+            In Stock ({product.productStock} available)
+          </span>
+        </div>
       ) : (
-        <p className="text-red-500">Out of Stock</p>
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+          <span className="text-sm text-red-600">Out of Stock</span>
+        </div>
       )}
     </div>
+
+
+  </div>
 
  {/* Action Buttons */}
 <div className="mt-auto flex justify-between items-center pt-4 border-t border-gray-100">
   {/* Wishlist Button */}
-  <Tooltip title={isInWishlist ? "Remove from Wishlist" : "Add to Wishlist"}>
+  <Tooltip title={isInWishlist ? "Already wishlisted" : "Add to Wishlist"}>
     <button
       onClick={handleAddToWishlist}
       disabled={isInWishlist}
@@ -294,15 +319,6 @@ const ProductCard = ({ product }: any) => {
     </button>
   </Tooltip>
 
-  {/* Details Button */}
-  <Tooltip title="View Details">
-    <Link
-      to={`/details/${product?._id}`}
-      className="p-2 cursor-pointer rounded-full bg-gray-50 text-gray-600 hover:bg-purple-50 hover:text-purple-500 transition-all duration-300"
-    >
-      <MdDetails size={20} />
-    </Link>
-  </Tooltip>
 
   {/* Cart Controls */}
   {product?.productStock > 0 && (
@@ -357,3 +373,5 @@ const ProductCard = ({ product }: any) => {
 };
 
 export default ProductCard;
+
+
