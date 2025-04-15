@@ -12,7 +12,7 @@ import {
   useUpdateVariantMutation,
   useSoftDeleteVariantMutation,
   useBulkSoftDeleteVariantMutation,
-  useGetAllVariantQuery
+  useGetAllVariantQuery,
 } from "../../../../redux/api/variantsApi/Variants";
 
 const Variants = () => {
@@ -32,8 +32,10 @@ const Variants = () => {
     isDelete: false,
     search: globalFilter,
   });
-  const [createVariant, { isLoading: isPostLoading }] = useCreateVariantMutation();
-  const [updateVariant, { isLoading: isEditLoading }] = useUpdateVariantMutation();
+  const [createVariant, { isLoading: isPostLoading }] =
+    useCreateVariantMutation();
+  const [updateVariant, { isLoading: isEditLoading }] =
+    useUpdateVariantMutation();
   const [softDeleteVariant] = useSoftDeleteVariantMutation();
   const [bulkSoftDeleteVariant] = useBulkSoftDeleteVariantMutation();
   const [loading, setLoading] = useState<boolean>(false);
@@ -109,7 +111,22 @@ const Variants = () => {
         </div>
       ),
     },
-
+    {
+      header: "AVAILABLE",
+      Cell: ({ row }: any) => (
+        <div>
+          <span
+            className={`text-sm px-2 py-1 rounded-md font-medium ${
+              row.available
+                ? "bg-green-100 text-green-700 border border-green-300"
+                : "bg-red-100 text-red-700 border border-red-300"
+            }`}
+          >
+            {row.available ? "Yes" : "No"}
+          </span>
+        </div>
+      ),
+    },
     {
       header: "CREATED DATE",
       Cell: ({ row }: any) => (
@@ -130,6 +147,7 @@ const Variants = () => {
     if (Edit && Edit !== null) {
       const initialValues = {
         name: Edit.name,
+        available: Edit.available,
       };
       setiInitialValues(initialValues);
     }
@@ -150,6 +168,11 @@ const Variants = () => {
       type: "text",
       placeholder: "Enter Variants Option Name",
       rules: [{ required: Edit ? false : true, message: "Name is required!" }],
+    },
+    {
+      name: "available",
+      label: "Is Available",
+      type: "checkbox",
     },
   ];
 

@@ -31,10 +31,9 @@ import {
 } from "../../../../redux/api/productApi/ProductApi";
 import { useGetCategoryDataQuery } from "../../../../redux/api/categoryApi/CategoryApi";
 import { useGetbrandDataQuery } from "../../../../redux/api/brandApi/BrandApi";
-import { useGetattributeDataQuery } from "../../../../redux/api/attributeApi/AttributeApi";
-import { useGetAllQuery } from "../../../../redux/api/variantsApi/Variants";
 import Swal from "sweetalert2";
 import ProductDetailsModal from "../../../../components/common/ProductDetailsModal";
+import { useGetAllVariantQuery } from "../../../../redux/api/variantsApi/Variants";
 
 const Products = () => {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
@@ -48,8 +47,6 @@ const Products = () => {
   const [form] = Form.useForm();
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 });
   const [globalFilter, setGlobalFilter] = useState("");
-  const haveVarient = Form.useWatch("haveVarient", form);
-  const [attributesForColor, setAttributesForColor] = useState<any[]>([]);
   const { data: productData, refetch } = useGetproductDataQuery({
     pageIndex: pagination.pageIndex,
     pageSize: pagination.pageSize,
@@ -66,11 +63,8 @@ const Products = () => {
     isDelete: false,
     search: globalFilter,
   });
-  const { data: attributes } = useGetattributeDataQuery({
-    isDelete: false,
-    search: globalFilter,
-  });
-  const { data: units } = useGetAllQuery({
+
+  const { data: variants } = useGetAllVariantQuery({
     isDelete: false,
     search: globalFilter,
   });
@@ -97,7 +91,6 @@ const Products = () => {
       setEditingProduct(null);
       setFileList([]);
       setFeatureImageList([]);
-      setAttributesForColor([]);
       setProductImages([]);
       setProductFeatureImage(null);
     }
@@ -122,7 +115,7 @@ const Products = () => {
       formData.append("productCategory", values.productCategory || ""); // Default empty string or null
       formData.append("productBrand", values.productBrand || ""); // Default empty string or null
       formData.append("productWeight", values.productWeight || ""); // Default empty string
-      formData.append("productUnit", values.productUnit || ""); // Default empty string
+      formData.append("productVariants", values.productVariants || ""); // Default empty string
       formData.append(
         "productPurchasePoint",
         values.productPurchasePoint || ""
@@ -214,7 +207,7 @@ const Products = () => {
       productCategory: product?.productCategory._id,
       productBrand: product?.productBrand._id,
       productWeight: product?.productWeight,
-      productUnit: product?.productUnit._id,
+      productVariants: product?.productVariants._id,
       productPurchasePoint: product?.productPurchasePoint,
       productBuyingPrice: product?.productBuyingPrice,
       productSellingPrice: product?.productSellingPrice,
@@ -228,7 +221,6 @@ const Products = () => {
     });
     setProductImages(product?.productImages);
     setProductFeatureImage(product?.productFeatureImage);
-    setAttributesForColor(product?.variantcolor || []);
   };
 
   const handleDelete = async (id: string) => {
@@ -307,8 +299,8 @@ const Products = () => {
       Cell: ({ row }: any) => <span>{row.productBrand.name}</span>,
     },
     {
-      header: "UNIT",
-      Cell: ({ row }: any) => <span>{row.productUnit.name}</span>,
+      header: "Variants",
+      Cell: ({ row }: any) => <span>{row.productVariants.name}</span>,
     },
 
     {
@@ -456,13 +448,13 @@ const Products = () => {
           </Form.Item>
 
           <Form.Item
-            label="Unit"
-            name="productUnit"
-            rules={[{ required: true, message: "Please select a unit" }]}
+            label="Variants"
+            name="productVariants"
+            rules={[{ required: true, message: "Please select a Variants" }]}
           >
             <Select
-              placeholder="Select a unit"
-              options={units?.data?.result.map((item: any) => ({
+              placeholder="Select a Variants"
+              options={variants?.data?.result.map((item: any) => ({
                 label: item.name,
                 value: item._id,
               }))}
@@ -592,44 +584,8 @@ const Products = () => {
             <Checkbox>Is Featured?</Checkbox>
           </Form.Item>
 
-          <Form.Item name="haveVarient" valuePropName="checked">
-            <Checkbox>Have Variant?</Checkbox>
-          </Form.Item>
 
-          {haveVarient && (
-            <>
-              <Form.Item label="Variant" name="variant">
-                <Select
-                  placeholder="Select variant"
-                  options={attributes?.data?.result.map((item: any) => ({
-                    label: item.name,
-                    value: item._id,
-                  }))}
-                  onChange={(values) => {
-                    const selectedAttributes = attributes?.data?.result.find(
-                      (attr: any) => values.includes(attr._id)
-                    );
-                    setAttributesForColor(selectedAttributes?.attributeOption);
-                    form.setFieldsValue({ variantcolor: [] });
-                  }}
-                />
-              </Form.Item>
-            </>
-          )}
-
-          {attributesForColor.length > 0 && (
-            <Form.Item name="variantcolor" label="Variant Colors">
-              <Select
-                mode="multiple"
-                placeholder="Select variant colors"
-                style={{ width: "100%" }}
-                options={attributesForColor?.map((item: any) => ({
-                  label: item.name,
-                  value: item._id,
-                }))}
-              />
-            </Form.Item>
-          )}
+      
 
           <Form.Item>
             <Button loading={loading} type="primary" htmlType="submit">
