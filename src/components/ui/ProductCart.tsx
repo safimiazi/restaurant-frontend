@@ -12,7 +12,6 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import truncateText from "../../utils/truncateText";
 import { Tooltip, Image } from "antd";
 import { Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -34,7 +33,6 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { openModal } from "../../redux/features/auth/loginRegistrationSlice";
 import { RootState } from "../../redux/store";
-import { MdDetails } from "react-icons/md";
 
 const ProductCard = ({ product }: any) => {
   const dispatch = useDispatch();
