@@ -15,7 +15,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+<div className="w-full max-w-screen-xl px-2 mx-auto  overflow-x-hidden flex h-16 items-center">
         <Button variant="ghost" size="icon" className="md:hidden mr-2" onClick={() => setMobileMenuOpen(true)}>
           <Menu className="h-5 w-5" />
           <span className="sr-only">Toggle menu</span>
