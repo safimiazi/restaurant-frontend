@@ -10,7 +10,7 @@ interface FoodCategoryProps {
 
 export function FoodCategory({ id, name, image }: FoodCategoryProps) {
   return (
-    <Link href={`/category/${id}`}>
+    <Link href={`/category/${id}`}> 
       <Card className="overflow-hidden transition-all hover:shadow-md">
         <CardContent className="p-0">
           <div className="relative h-40 w-full">
