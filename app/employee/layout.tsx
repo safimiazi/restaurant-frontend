@@ -1,5 +1,4 @@
 import type React from "react"
-import { EmployeeSidebar } from "@/components/employee-sidebar"
 import { SidebarProvider } from "@/components/ui/sidebar"
 
 export default function EmployeeLayout({
