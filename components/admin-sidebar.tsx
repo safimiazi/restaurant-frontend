@@ -138,10 +138,10 @@ export function AdminSidebar({
     if (setActiveTab) {
       setActiveTab(itemId);
     }
-    // router?.push(href);
-    // if (isMobile) {
-    //   setMobileOpen(false);
-    // }
+    router?.push(href);
+    if (isMobile) {
+      setMobileOpen(false);
+    }
   };
 
   // Mobile sidebar
