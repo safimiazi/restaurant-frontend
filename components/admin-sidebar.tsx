@@ -1,22 +1,28 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+
 import {
   LayoutDashboard,
+  PackageCheck, // Better icon for product management
+  ListOrdered, // For attributes
+  ListChecks, // For attribute options
+  Boxes, // For products
   ShoppingCart,
-  Package,
-  Users,
-  Settings,
-  BarChart,
-  LogOut,
-  Tag,
+  Tags, // Better than Tag for categories
+  UsersRound, // More distinct users icon
+  BarChart3, // More modern analytics chart icon
   Gift,
+  Settings,
+  Package,
+  LogOut,
   Menu,
-  X,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
+  ArrowRight,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -27,23 +33,36 @@ import {
   SidebarMenuButton,
   SidebarTrigger,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+} from "@/components/ui/sidebar";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 
 interface AdminSidebarProps {
-  activeTab?: string
-  setActiveTab?: (tab: string) => void
+  activeTab?: string;
+  setActiveTab?: (tab: string) => void;
 }
 
-export function AdminSidebar({ activeTab = "dashboard", setActiveTab }: AdminSidebarProps) {
-  const router = useRouter()
-  const { isMobile } = useSidebar()
-  const [mobileOpen, setMobileOpen] = useState(false)
+export function AdminSidebar({
+  activeTab = "dashboard",
+  setActiveTab,
+}: AdminSidebarProps) {
+  const router = useRouter();
+  const { isMobile } = useSidebar();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   // Close mobile sidebar when route changes
   useEffect(() => {
-    setMobileOpen(false)
-  }, [activeTab])
+    setMobileOpen(false);
+  }, [activeTab]);
+
+  const [openSubmenus, setOpenSubmenus] = useState<string[]>([]);
+
+  const toggleSubmenu = (id: string) => {
+    setOpenSubmenus((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const isSubmenuOpen = (id: string) => openSubmenus.includes(id);
 
   const menuItems = [
     {
@@ -53,33 +72,52 @@ export function AdminSidebar({ activeTab = "dashboard", setActiveTab }: AdminSid
       href: "/admin",
     },
     {
+      id: "product_management",
+      name: "Product Management",
+      icon: PackageCheck,
+      children: [
+        {
+          id: "attributes",
+          name: "Attributes",
+          icon: ListOrdered,
+          href: "/admin/product-management/attributes",
+        },
+        {
+          id: "attribute_options",
+          name: "Attribute Options",
+          icon: ListChecks,
+          href: "/admin/product-management/attribute-options",
+        },
+        {
+          id: "products",
+          name: "Products",
+          icon: Boxes,
+          href: "/admin/products",
+        },
+      ],
+    },
+    {
       id: "orders",
       name: "Orders",
       icon: ShoppingCart,
       href: "/admin/orders",
     },
     {
-      id: "products",
-      name: "Products",
-      icon: Package,
-      href: "/admin/products",
-    },
-    {
       id: "categories",
       name: "Categories",
-      icon: Tag,
+      icon: Tags,
       href: "/admin/categories",
     },
     {
       id: "customers",
       name: "Customers",
-      icon: Users,
+      icon: UsersRound,
       href: "/admin/customers",
     },
     {
       id: "analytics",
       name: "Analytics",
-      icon: BarChart,
+      icon: BarChart3,
       href: "/admin/analytics",
     },
     {
@@ -94,17 +132,17 @@ export function AdminSidebar({ activeTab = "dashboard", setActiveTab }: AdminSid
       icon: Settings,
       href: "/admin/settings",
     },
-  ]
+  ];
 
-  const handleMenuClick = (itemId, href) => {
+  const handleMenuClick = (itemId: any, href: any) => {
     if (setActiveTab) {
-      setActiveTab(itemId)
+      setActiveTab(itemId);
     }
-    router.push(href)
-    if (isMobile) {
-      setMobileOpen(false)
-    }
-  }
+    // router?.push(href);
+    // if (isMobile) {
+    //   setMobileOpen(false);
+    // }
+  };
 
   // Mobile sidebar
   if (isMobile) {
@@ -123,28 +161,64 @@ export function AdminSidebar({ activeTab = "dashboard", setActiveTab }: AdminSid
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
           <SheetContent side="left" className="p-0 w-[280px]">
             <div className="flex h-[60px] items-center px-6 border-b">
-              <Link href="/admin" className="flex items-center gap-2 font-semibold">
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 font-semibold"
+              >
                 <Package className="h-6 w-6" />
                 <span>Admin Panel</span>
               </Link>
-              <Button variant="ghost" size="icon" className="ml-auto" onClick={() => setMobileOpen(false)}>
-                <X className="h-5 w-5" />
-              </Button>
             </div>
             <div className="py-4">
-              <div className="space-y-1 px-3">
-                {menuItems.map((item) => (
-                  <Button
-                    key={item.id}
-                    variant={activeTab === item.id ? "secondary" : "ghost"}
-                    className="w-full justify-start"
-                    onClick={() => handleMenuClick(item.id, item.href)}
-                  >
-                    <item.icon className="h-4 w-4 mr-3" />
-                    {item.name}
-                  </Button>
-                ))}
-              </div>
+              <SidebarContent>
+                <SidebarMenu>
+                  {menuItems.map((item) => (
+                    <SidebarMenuItem key={item.id}>
+                      {item.children ? (
+                        <>
+                          <SidebarMenuButton
+                            isActive={isSubmenuOpen(item.id)}
+                            onClick={() => toggleSubmenu(item.id)}
+                          >
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.name}</span>
+                            <ArrowRight
+                              className={`ml-auto h-4 w-4 transition-transform ${
+                                isSubmenuOpen(item.id) ? "rotate-90" : ""
+                              }`}
+                            />
+                          </SidebarMenuButton>
+                          {isSubmenuOpen(item.id) && (
+                            <div className="pl-4 mt-1">
+                              {item.children.map((child) => (
+                                <SidebarMenuButton
+                                  key={child.id}
+                                  isActive={activeTab === child.id}
+                                  onClick={() =>
+                                    handleMenuClick(child.id, child.href)
+                                  }
+                                  className="text-sm"
+                                >
+                                  <child.icon className="h-4 w-4" />
+                                  <span>{child.name}</span>
+                                </SidebarMenuButton>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <SidebarMenuButton
+                          isActive={activeTab === item.id}
+                          onClick={() => handleMenuClick(item.id, item.href)}
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.name}</span>
+                        </SidebarMenuButton>
+                      )}
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarContent>
               <div className="px-3 mt-6">
                 <Button variant="outline" className="w-full" size="sm">
                   <LogOut className="mr-2 h-4 w-4" />
@@ -155,7 +229,7 @@ export function AdminSidebar({ activeTab = "dashboard", setActiveTab }: AdminSid
           </SheetContent>
         </Sheet>
       </>
-    )
+    );
   }
 
   // Desktop sidebar
@@ -174,10 +248,45 @@ export function AdminSidebar({ activeTab = "dashboard", setActiveTab }: AdminSid
         <SidebarMenu>
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.id}>
-              <SidebarMenuButton isActive={activeTab === item.id} onClick={() => handleMenuClick(item.id, item.href)}>
-                <item.icon className="h-4 w-4" />
-                <span>{item.name}</span>
-              </SidebarMenuButton>
+              {item.children ? (
+                <>
+                  <SidebarMenuButton
+                    isActive={isSubmenuOpen(item.id)}
+                    onClick={() => toggleSubmenu(item.id)}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.name}</span>
+                    <ArrowRight
+                      className={`ml-auto h-4 w-4 transition-transform ${
+                        isSubmenuOpen(item.id) ? "rotate-90" : ""
+                      }`}
+                    />
+                  </SidebarMenuButton>
+                  {isSubmenuOpen(item.id) && (
+                    <div className="pl-4 mt-1">
+                      {item.children.map((child) => (
+                        <SidebarMenuButton
+                          key={child.id}
+                          isActive={activeTab === child.id}
+                          onClick={() => handleMenuClick(child.id, child.href)}
+                          className="text-sm"
+                        >
+                          <child.icon className="h-4 w-4" />
+                          <span>{child.name}</span>
+                        </SidebarMenuButton>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <SidebarMenuButton
+                  isActive={activeTab === item.id}
+                  onClick={() => handleMenuClick(item.id, item.href)}
+                >
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.name}</span>
+                </SidebarMenuButton>
+              )}
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -191,5 +300,5 @@ export function AdminSidebar({ activeTab = "dashboard", setActiveTab }: AdminSid
         </div>
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
