@@ -6,14 +6,14 @@ import { useState, useEffect } from "react";
 
 import {
   LayoutDashboard,
-  PackageCheck, // Better icon for product management
-  ListOrdered, // For attributes
-  ListChecks, // For attribute options
-  Boxes, // For products
+  PackageCheck,
+  ListOrdered,
+  ListChecks,
+  Boxes,
   ShoppingCart,
-  Tags, // Better than Tag for categories
-  UsersRound, // More distinct users icon
-  BarChart3, // More modern analytics chart icon
+  Tags,
+  UsersRound,
+  BarChart3,
   Gift,
   Settings,
   Package,
