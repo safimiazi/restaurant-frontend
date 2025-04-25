@@ -100,6 +100,12 @@ export function AdminSidebar({
           icon: Boxes,
           href: "/admin/product-management/products",
         },
+        {
+          id: "brand",
+          name: "Brand",
+          icon: Boxes,
+          href: "/admin/product-management/brand",
+        },
       ],
     },
     {

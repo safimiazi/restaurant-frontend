@@ -1,32 +1,38 @@
+import type React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { CartProvider } from "@/hooks/use-cart";
+import { ThemeProvider } from "@/components/theme-provider";
+import ReduxProvider from "@/hooks/redux-provider";
+import Toast from "@/hooks/use-toast";
 
-
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { CartProvider } from "@/hooks/use-cart"
-import { ThemeProvider } from "@/components/theme-provider"
-
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Tasty Bites - Restaurant Ordering System",
   description: "Order delicious food online",
-    generator: 'v0.dev'
-}
+  generator: "v0.dev",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <CartProvider>{children}</CartProvider>
+         
+          <ReduxProvider>
+
+            <CartProvider>{children}
+              <Toast/>
+            </CartProvider>
+          </ReduxProvider>
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
