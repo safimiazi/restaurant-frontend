@@ -68,7 +68,7 @@ export function AdminBrandForm({ brand, onClose }: AdminBrandFormProps) {
       if (imageFile) form.append("brandImage", imageFile);
 
       const res = isEditing
-        ? await brandPut({ id: brand.id, data: form }).unwrap()
+        ? await brandPut({ id: brand._id, data: form }).unwrap()
         : await brandPost(form).unwrap();
         toast.success(res?.message || "Brand saved successfully!");
 

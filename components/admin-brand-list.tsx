@@ -19,11 +19,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { useGetAllBrandQuery } from "@/redux/api/BrandApi";
+import {
+  useBrandDeleteMutation,
+  useGetAllBrandQuery,
+} from "@/redux/api/BrandApi";
 import { toast } from "react-toastify";
 
 interface Brand {
-  id: number;
+  _id: number;
   brandName: string;
   brandImage: string;
   brandDescription?: string;
@@ -37,7 +40,7 @@ export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(1); // Start from page 1
   const [pageSize, setPageSize] = useState(5); // Default page size is 5
-
+  const [brandDelete] = useBrandDeleteMutation();
   const { data: brandsData } = useGetAllBrandQuery({
     isDelete: false,
     search: searchTerm,
@@ -46,21 +49,11 @@ export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
   });
 
   const handleDelete = async (id: number) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    });
-  
-    if (result.isConfirmed) {
-      // delete logic here
-      toast.success("Brand deleted successfully!");
-    } else {
-      toast.info("Delete cancelled.");
+    try {
+      const res = await brandDelete({ id }).unwrap();
+      toast.success(res?.message || "Brand deleted successfully!");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Something went wrong!");
     }
   };
 
@@ -68,7 +61,6 @@ export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
     onEditBrand(brand);
   };
 
-  const totalPages = brandsData?.data?.totalPage || 1; // Update this to match the correct pagination info
 
   return (
     <div className="space-y-4">
@@ -121,7 +113,7 @@ export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
             </TableHeader>
             <TableBody>
               {brandsData?.data?.result?.map((brand: Brand) => (
-                <TableRow key={brand.id}>
+                <TableRow key={brand._id}>
                   <TableCell>
                     <img
                       src={brand.brandImage || "/placeholder.svg"}
@@ -152,7 +144,7 @@ export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           className="text-destructive"
-                          onClick={() => handleDelete(brand.id)}
+                          onClick={() => handleDelete(brand._id)}
                         >
                           <Trash className="mr-2 h-4 w-4" />
                           Delete brand
@@ -176,25 +168,24 @@ export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
 
       {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
-  <Button
-    variant="outline"
-    disabled={pageIndex === 1}
-    onClick={() => setPageIndex((prev) => prev - 1)}
-  >
-    Previous
-  </Button>
-  <span className="text-sm text-muted-foreground">
-    Page {pageIndex} of {brandsData?.data?.meta?.totalPage}
-  </span>
-  <Button
-    variant="outline"
-    disabled={pageIndex === brandsData?.data?.meta?.totalPage}
-    onClick={() => setPageIndex((prev) => prev + 1)}
-  >
-    Next
-  </Button>
-</div>
-
+        <Button
+          variant="outline"
+          disabled={pageIndex === 1}
+          onClick={() => setPageIndex((prev) => prev - 1)}
+        >
+          Previous
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Page {pageIndex} of {brandsData?.data?.meta?.totalPage}
+        </span>
+        <Button
+          variant="outline"
+          disabled={pageIndex === brandsData?.data?.meta?.totalPage}
+          onClick={() => setPageIndex((prev) => prev + 1)}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 }

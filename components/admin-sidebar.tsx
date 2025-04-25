@@ -35,6 +35,10 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useLogoutMutation } from "@/redux/api/AuthApi";
+import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "@/redux/features/AuthSlice";
 
 interface AdminSidebarProps {
   activeTab?: string;
@@ -48,6 +52,8 @@ export function AdminSidebar({
   const router = useRouter();
   const { isMobile } = useSidebar();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [logout] = useLogoutMutation();
+  const dispatch = useDispatch();
 
   // Close mobile sidebar when route changes
   useEffect(() => {
@@ -114,7 +120,7 @@ export function AdminSidebar({
       icon: ShoppingCart,
       href: "/admin/orders",
     },
- 
+
     {
       id: "customers",
       name: "Customers",
@@ -148,6 +154,18 @@ export function AdminSidebar({
     router?.push(href);
     if (isMobile) {
       setMobileOpen(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      const res = await logout({}).unwrap();
+      dispatch(logoutUser());
+      toast.success(res?.message || "Logout successful!");
+      router.push("/login");
+    } catch (error: any) {
+      toast.error(error?.data?.message || "Logout failed!");
+      console.error("Logout failed:", error);
     }
   };
 
@@ -300,7 +318,12 @@ export function AdminSidebar({
       </SidebarContent>
       <SidebarFooter>
         <div className="p-4">
-          <Button variant="outline" className="w-full" size="sm">
+          <Button
+            onClick={handleLogout}
+            variant="outline"
+            className="w-full"
+            size="sm"
+          >
             <LogOut className="mr-2 h-4 w-4" />
             Log Out
           </Button>
