@@ -17,7 +17,7 @@ export default function AdminProductsPage() {
     setShowAddForm(true)
   }
 
-  const handleEditProduct = (product) => {
+  const handleEditProduct = (product : any) => {
     setEditingProduct(product)
     setShowAddForm(true)
   }

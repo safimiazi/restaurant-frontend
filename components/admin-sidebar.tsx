@@ -77,6 +77,12 @@ export function AdminSidebar({
       icon: PackageCheck,
       children: [
         {
+          id: "categories",
+          name: "Categories",
+          icon: Tags,
+          href: "/admin/product-management/categories",
+        },
+        {
           id: "attributes",
           name: "Attributes",
           icon: ListOrdered,
@@ -92,7 +98,7 @@ export function AdminSidebar({
           id: "products",
           name: "Products",
           icon: Boxes,
-          href: "/admin/products",
+          href: "/admin/product-management/products",
         },
       ],
     },
@@ -102,12 +108,7 @@ export function AdminSidebar({
       icon: ShoppingCart,
       href: "/admin/orders",
     },
-    {
-      id: "categories",
-      name: "Categories",
-      icon: Tags,
-      href: "/admin/categories",
-    },
+ 
     {
       id: "customers",
       name: "Customers",
