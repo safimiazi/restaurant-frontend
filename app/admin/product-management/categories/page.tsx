@@ -47,7 +47,7 @@ export default function AdminCategoriesPage() {
             {showAddForm ? (
               <AdminCategoryForm category={editingCategory} onClose={handleFormClose} />
             ) : (
-              <AdminCategoryList onEditCategory={handleEditCategory} />
+          <AdminCategoryList onEditCategory={handleEditCategory} /> 
             )}
           </main>
         </div>
