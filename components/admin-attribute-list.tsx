@@ -22,6 +22,7 @@ import {
 import { toast } from "react-toastify";
 import { useProductAttributeOptionDeleteMutation } from "@/redux/api/ProductAttributeOptionApi";
 import { useProductAttributeGetAllQuery } from "@/redux/api/ProductAttributeApi";
+import { Tooltip } from "recharts";
 
 interface Attribute {
   _id: string;
@@ -29,6 +30,15 @@ interface Attribute {
   price: number;
   image?: string | null;
   description?: string;
+  attributeOption: {
+    price: number;
+    name: string;
+    image?: string | null;
+    description?: string;
+    isActive: boolean;
+    isDelete: boolean;
+    _id: string;
+  }[];
   value?: string;
   slug?: string;
   isActive: boolean;
@@ -65,7 +75,11 @@ export function AdminAttributeList({ onEdit }: ListProps) {
     setPageIndex(newPage);
   };
 
-  const renderStatus = (status: boolean, activeLabel: string, inactiveLabel: string) => (
+  const renderStatus = (
+    status: boolean,
+    activeLabel: string,
+    inactiveLabel: string
+  ) => (
     <span className={status ? "text-green-600" : "text-red-600"}>
       {status ? activeLabel : inactiveLabel}
     </span>
@@ -115,37 +129,25 @@ export function AdminAttributeList({ onEdit }: ListProps) {
               <TableHeader>
                 <TableRow>
                   {[
-                    "Image",
                     "Name",
-                    "Price",
                     "Description",
                     "Value",
                     "Slug",
                     "Active",
                     "Delete Status",
+                    "Attribute Options", // <-- Added this new heading
                     "Actions",
                   ].map((head) => (
                     <TableHead key={head}>{head}</TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
+
               <TableBody>
                 {attributeData?.data?.result?.length ? (
                   attributeData.data.result.map((option: Attribute) => (
                     <TableRow key={option._id}>
-                      <TableCell>
-                        {option.image ? (
-                          <img
-                            src={option.image}
-                            alt={option.name}
-                            className="h-10 w-10 object-cover rounded"
-                          />
-                        ) : (
-                          "-"
-                        )}
-                      </TableCell>
                       <TableCell>{option.name}</TableCell>
-                      <TableCell>{option.price}</TableCell>
                       <TableCell>{option.description || "-"}</TableCell>
                       <TableCell>{option.value || "-"}</TableCell>
                       <TableCell>{option.slug || "-"}</TableCell>
@@ -155,6 +157,24 @@ export function AdminAttributeList({ onEdit }: ListProps) {
                       <TableCell>
                         {renderStatus(!option.isDelete, "Available", "Deleted")}
                       </TableCell>
+
+                      {/* NEW CELL: Attribute Option Names */}
+                      <TableCell className="flex flex-wrap gap-2">
+                        {option.attributeOption?.length
+                          ? option.attributeOption.map((opt) => (
+                            <div
+                              key={opt._id}
+                              title={`Price: ${opt.price}`}
+                              className={`px-2 py-1 rounded-full text-center text-white text-xs transition-all duration-500 ${
+                                opt.isActive ? "bg-green-500" : "bg-gray-400"
+                              }`}
+                            >
+                              {opt.name}
+                            </div>
+                            ))
+                          : "-"}
+                      </TableCell>
+
                       <TableCell className="text-right">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -188,7 +208,7 @@ export function AdminAttributeList({ onEdit }: ListProps) {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={9} className="text-center">
+                    <TableCell colSpan={8} className="text-center">
                       No attribute options found.
                     </TableCell>
                   </TableRow>
