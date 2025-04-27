@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,84 +22,68 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { useGetAllCategoryQuery } from "@/redux/api/CategoryApi"
+import { toast } from "react-toastify"
+
+interface Category {
+  _id: string
+  name: string
+  slug?: string
+  image?: string | null
+  description?: string
+  isActive: boolean
+  parentCategory: string | null
+  isDelete: boolean
+  createdAt: string
+  updatedAt: string
+}
 
 interface AdminCategoryListProps {
-  onEditCategory: (category: any) => void
+  onEditCategory: (category: Category) => void
 }
 
 export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
-  const [categories, setCategories] = useState([])
-  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [pageIndex, setPageIndex] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [categoryToDelete, setCategoryToDelete] = useState(null)
+  const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
 
-  useEffect(() => {
-    // In a real app, this would fetch categories from the backend
-    // Simulate API call
-    setTimeout(() => {
-      setCategories([
-        {
-          id: "1",
-          name: "Fast Food",
-          image: "/placeholder.svg?height=200&width=200",
-          productCount: 12,
-        },
-        {
-          id: "2",
-          name: "Desserts",
-          image: "/placeholder.svg?height=200&width=200",
-          productCount: 8,
-        },
-        {
-          id: "3",
-          name: "Drinks",
-          image: "/placeholder.svg?height=200&width=200",
-          productCount: 10,
-        },
-        {
-          id: "4",
-          name: "Main Course",
-          image: "/placeholder.svg?height=200&width=200",
-          productCount: 15,
-        },
-        {
-          id: "5",
-          name: "Appetizers",
-          image: "/placeholder.svg?height=200&width=200",
-          productCount: 7,
-        },
-        {
-          id: "6",
-          name: "Salads",
-          image: "/placeholder.svg?height=200&width=200",
-          productCount: 5,
-        },
-      ])
-      setLoading(false)
-    }, 1000)
-  }, [])
+  const { data: categoryData, isLoading } = useGetAllCategoryQuery({
+    isDelete: false,
+    search: searchTerm,
+    pageIndex: pageIndex - 1, // Converting to 0-based index if your API expects it
+    pageSize,
+  })
 
-  const handleDeleteClick = (category) => {
+  const handleDeleteClick = (category: Category) => {
     setCategoryToDelete(category)
     setDeleteDialogOpen(true)
   }
 
   const confirmDelete = () => {
-    // In a real app, this would call an API to delete the category
-    setCategories(categories.filter((c) => c.id !== categoryToDelete.id))
+    // In a real app, you would call a delete API here
+    // For now, we'll just show a toast
+    toast.success(`Category "${categoryToDelete?.name}" deleted successfully!`)
     setDeleteDialogOpen(false)
     setCategoryToDelete(null)
   }
 
-  // Filter categories based on search term
-  const filteredCategories = categories.filter((category) =>
-    category.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  const handlePageChange = (newPage: number) => {
+    setPageIndex(newPage)
+  }
+
+  const renderStatus = (status: boolean) => (
+    <span className={status ? "text-green-600" : "text-red-600"}>
+      {status ? "Active" : "Inactive"}
+    </span>
   )
+
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      {/* Search and Page Size */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -107,91 +91,152 @@ export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
             placeholder="Search categories..."
             className="w-[200px] pl-8 md:w-[300px]"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setPageIndex(1)
+            }}
           />
+        </div>
+        <div className="flex items-center gap-2">
+          <span>Items per page:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value))
+              setPageIndex(1)
+            }}
+            className="border rounded-md px-2 py-1"
+          >
+            {[5, 10, 20].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
+      {/* Categories Table */}
       <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Products</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
+        <CardContent>
+          <div className="w-full overflow-x-auto">
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
-                    Loading categories...
-                  </TableCell>
+                  {[
+                    "Image",
+                    "Name",
+                    "Slug",
+                    "Parent",
+                    "Status",
+                    "Created At",
+                    "Actions",
+                  ].map((head) => (
+                    <TableHead key={head}>{head}</TableHead>
+                  ))}
                 </TableRow>
-              ) : filteredCategories.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-center py-8">
-                    No categories found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredCategories.map((category) => (
-                  <TableRow key={category.id}>
-                    <TableCell>
-                      <div className="h-10 w-10 rounded-md overflow-hidden">
-                        <img
-                          src={category.image || "/placeholder.svg"}
-                          alt={category.name}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">{category.name}</TableCell>
-                    <TableCell>{category.productCount} products</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Actions</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem onClick={() => onEditCategory(category)}>
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit category
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-destructive" onClick={() => handleDeleteClick(category)}>
-                            <Trash className="mr-2 h-4 w-4" />
-                            Delete category
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+              </TableHeader>
+
+              <TableBody>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      Loading categories...
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
+                ) : categoryData?.data?.result?.length ? (
+                  categoryData.data.result.map((category: Category) => (
+                    <TableRow key={category._id}>
+                      <TableCell>
+                        {category?.image ? (
+                          <div className="h-10 w-10 rounded-md overflow-hidden">
+                            <img
+                              src={category?.image}
+                              alt={category.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ) : (
+                          "-"
+                        )}
+                      </TableCell>
+                      <TableCell className="font-medium">{category.name}</TableCell>
+                      <TableCell>{category.slug || "-"}</TableCell>
+                      <TableCell>{category.parentCategory || "-"}</TableCell>
+                      <TableCell>
+                        {renderStatus(category.isActive)}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(category.createdAt).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Actions</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => onEditCategory(category)}>
+                              <Edit className="mr-2 h-4 w-4" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive"
+                              onClick={() => handleDeleteClick(category)}
+                            >
+                              <Trash className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      No categories found
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          variant="outline"
+          disabled={pageIndex === 1}
+          onClick={() => handlePageChange(pageIndex - 1)}
+        >
+          Previous
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Page {pageIndex} of {categoryData?.data?.meta?.totalPage || 1}
+        </span>
+        <Button
+          variant="outline"
+          disabled={pageIndex === categoryData?.data?.meta?.totalPage}
+          onClick={() => handlePageChange(pageIndex + 1)}
+        >
+          Next
+        </Button>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
               Are you sure you want to delete the category "{categoryToDelete?.name}"? This action cannot be undone.
-              {categoryToDelete?.productCount > 0 && (
-                <p className="mt-2 text-destructive">
-                  Warning: This category contains {categoryToDelete.productCount} products. Deleting it may affect these
-                  products.
-                </p>
-              )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

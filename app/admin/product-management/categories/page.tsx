@@ -10,14 +10,14 @@ import { SidebarProvider } from "@/components/ui/sidebar"
 
 export default function AdminCategoriesPage() {
   const [showAddForm, setShowAddForm] = useState(false)
-  const [editingCategory, setEditingCategory] = useState(null)
+  const [editingCategory, setEditingCategory] = useState<any>()
 
   const handleAddNew = () => {
     setEditingCategory(null)
     setShowAddForm(true)
   }
 
-  const handleEditCategory = (category) => {
+  const handleEditCategory = (category : any) => {
     setEditingCategory(category)
     setShowAddForm(true)
   }
