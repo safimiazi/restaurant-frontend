@@ -120,23 +120,24 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
   // Load product data when editing
   useEffect(() => {
     if (isEditing && product) {
-      const { data } = product;
       form.reset({
-        ...data,
+        ...product,
         images: [],
-        variant: data.variant?.map((v: any) => v._id) || [],
-        subcategories: data.subcategories?.map((sc: any) => sc._id) || [],
+        brand: product?.brand?._id,
+        category:product?.category?._id,
+        variant: product?.variant?.map((v: any) => v._id) || [],
+        subcategories: product?.subcategories?.map((sc: any) => sc._id) || [],
       });
 
       // Set previews
-      if (data.images?.length) {
-        setPreviewImages(data.images);
+      if (product?.images?.length) {
+        setPreviewImages(product.images);
       }
-      if (data.thumbnail) {
-        setThumbnailPreview(data.thumbnail);
+      if (product?.thumbnail) {
+        setThumbnailPreview(product.thumbnail);
       }
-      if (data.video) {
-        setVideoPreview(data.video);
+      if (product?.video) {
+        setVideoPreview(product?.video);
       }
     }
   }, [isEditing, product, form]);
@@ -197,10 +198,24 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
       let res;
       if (isEditing && product) {
         res = await updateProduct({ data: formData, id: product._id }).unwrap();
-        toast.success(res.message);
+        if(res?.message == "Validation error"){
+          res?.errorSource?.map((item : any) => {
+            return toast.success(item.message);
+          })
+        }else{
+
+          toast.success(res.message);
+        }
       } else {
         res = await productPost(formData).unwrap();
-        toast.success(res.message);
+        if(res?.message == "Validation error"){
+          res?.errorSource?.map((item : any) => {
+            return toast.success(item.message);
+          })
+        }else{
+
+          toast.success(res.message);
+        }
       }
 
       onClose();
@@ -314,6 +329,7 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
                           ))}
                         </SelectContent>
                       </Select>
+                      
                     </FormItem>
                   )}
                 />
@@ -350,7 +366,7 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
                             ))}
                         </SelectContent>
                       </Select>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      <div   className="mt-2 flex flex-wrap gap-2">
                         {field.value.map((subcatId) => {
                           const subcat = categoryData?.data?.result?.find(
                             (c: any) => c._id === subcatId
