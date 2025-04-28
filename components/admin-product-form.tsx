@@ -105,7 +105,6 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
   // API hooks
   const [productPost] = useProductPostMutation();
   const [updateProduct] = useProductPutMutation();
-  const { data: productData } = useProductGetSingleQuery({ id: product._id! });
 
   // Fetch data
   const { data: attributesData } = useProductAttributeGetAllQuery({
@@ -120,8 +119,8 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
 
   // Load product data when editing
   useEffect(() => {
-    if (isEditing && productData) {
-      const { data } = productData;
+    if (isEditing && product) {
+      const { data } = product;
       form.reset({
         ...data,
         images: [],
@@ -140,7 +139,7 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
         setVideoPreview(data.video);
       }
     }
-  }, [isEditing, productData, form]);
+  }, [isEditing, product, form]);
 
   // Handle file changes
   const handleFileChange = (
