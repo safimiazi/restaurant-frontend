@@ -39,9 +39,9 @@ interface AdminBrandListProps {
 export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(1); // Start from page 1
-  const [pageSize, setPageSize] = useState(5); // Default page size is 5
-  const [brandDelete] = useBrandDeleteMutation();
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [pageSize, setPageSize] = useState(10); // Default page size is 5
+  const [brandDelete] = useBrandDeleteMutation();
 
   
   const { data: brandsData } = useGetAllBrandQuery({
