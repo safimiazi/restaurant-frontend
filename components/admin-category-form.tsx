@@ -50,8 +50,7 @@ export function AdminCategoryForm({
   const [categoryPut] = useCategoryPutMutation();
   const { data: parentCategoryData } = useGetAllCategoryQuery({
     isDelete: false,
-    pageIndex: 0,
-    pageSize: 100,
+ 
   });
 
   const [formData, setFormData] = useState<Category>({
