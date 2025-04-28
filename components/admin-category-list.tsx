@@ -22,7 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useGetAllCategoryQuery } from "@/redux/api/CategoryApi"
+import { useCategoryDeleteMutation, useGetAllCategoryQuery } from "@/redux/api/CategoryApi"
 import { toast } from "react-toastify"
 
 interface Category {
@@ -32,7 +32,9 @@ interface Category {
   image?: string | null
   description?: string
   isActive: boolean
-  parentCategory: string | null
+  parentCategory: {
+    name: string;
+  }
   isDelete: boolean
   createdAt: string
   updatedAt: string
@@ -48,7 +50,7 @@ export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
   const [pageSize, setPageSize] = useState(10)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null)
-
+const [categoryDelete] = useCategoryDeleteMutation()
   const { data: categoryData, isLoading } = useGetAllCategoryQuery({
     isDelete: false,
     search: searchTerm,
@@ -61,12 +63,16 @@ export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
     setDeleteDialogOpen(true)
   }
 
-  const confirmDelete = () => {
-    // In a real app, you would call a delete API here
+  const confirmDelete =async () => {
+   try {
+    const res = await categoryDelete({id: categoryToDelete?._id}).unwrap()
     // For now, we'll just show a toast
-    toast.success(`Category "${categoryToDelete?.name}" deleted successfully!`)
+    toast.success(`${res.message}`)
     setDeleteDialogOpen(false)
     setCategoryToDelete(null)
+   } catch (error  : any) {
+    toast.error(error?.data?.message || "Something went wrong!");
+   }
   }
 
   const handlePageChange = (newPage: number) => {
@@ -127,7 +133,7 @@ export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
                     "Image",
                     "Name",
                     "Slug",
-                    "Parent",
+                    "parentCategory",
                     "Status",
                     "Created At",
                     "Actions",
@@ -162,7 +168,7 @@ export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
                       </TableCell>
                       <TableCell className="font-medium">{category.name}</TableCell>
                       <TableCell>{category.slug || "-"}</TableCell>
-                      <TableCell>{category.parentCategory || "-"}</TableCell>
+                      <TableCell>{category.parentCategory?.name || "-"}</TableCell>
                       <TableCell>
                         {renderStatus(category.isActive)}
                       </TableCell>

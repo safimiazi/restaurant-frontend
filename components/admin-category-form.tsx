@@ -11,14 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { X, ImageIcon } from "lucide-react";
+
+import { X } from "lucide-react";
 import {
   useCategoryPostMutation,
   useCategoryPutMutation,
@@ -33,7 +27,7 @@ interface Category {
   image?: string | null;
   description?: string;
   isActive?: boolean;
-  parentCategory?: string | null;
+  parentCategory?: null ;
   isDelete?: boolean;
 }
 
@@ -67,6 +61,8 @@ export function AdminCategoryForm({
     parentCategory: null,
   });
 
+  console.log(formData)
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -75,7 +71,7 @@ export function AdminCategoryForm({
         name: category.name,
         description: category.description || "",
         isActive: category.isActive !== false,
-        parentCategory: category.parentCategory || null,
+        parentCategory: category.parentCategory?.['_id'] || null,
       });
       setImagePreview(category?.image || null);
 
@@ -141,8 +137,9 @@ export function AdminCategoryForm({
       let response;
       if (isEditing && category?._id) {
         response = await categoryPut({
-          id: category._id,
           body: form,
+          id: category._id,
+  
         }).unwrap();
       } else {
         response = await categoryPost(form).unwrap();
@@ -239,7 +236,7 @@ export function AdminCategoryForm({
                   key={cat._id}
                   type="button"
                   variant={
-                    formData.parentCategory === cat._id
+                    formData?.parentCategory === cat._id
                       ? "default"
                       : "outline"
                   }

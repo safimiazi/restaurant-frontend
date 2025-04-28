@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ShoppingCart, Clock, Calendar, Info } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function WeekendSpecialPage() {
   const { addToCart } = useCart()
