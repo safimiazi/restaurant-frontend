@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
+import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import {
   useCategoryPostMutation,
@@ -27,7 +27,7 @@ interface Category {
   image?: string | null;
   description?: string;
   isActive?: boolean;
-  parentCategory?: null ;
+  parentCategory?: any | null;
   isDelete?: boolean;
 }
 
@@ -51,17 +51,17 @@ export function AdminCategoryForm({
   const { data: parentCategoryData } = useGetAllCategoryQuery({
     isDelete: false,
     pageIndex: 0,
-    pageSize: 100, // Fetch enough to show all categories
+    pageSize: 100,
   });
 
   const [formData, setFormData] = useState<Category>({
     name: "",
+    slug: "",
     description: "",
+    image: null,
     isActive: true,
     parentCategory: null,
   });
-
-  console.log(formData)
 
   const [loading, setLoading] = useState(false);
 
@@ -69,12 +69,13 @@ export function AdminCategoryForm({
     if (isEditing && category) {
       setFormData({
         name: category.name,
+        slug: category.slug || "",
         description: category.description || "",
+        image: category.image || null,
         isActive: category.isActive !== false,
-        parentCategory: category.parentCategory?.['_id'] || null,
+        parentCategory: category?.parentCategory?._id || null,
       });
-      setImagePreview(category?.image || null);
-
+      setImagePreview(category.image || null);
     }
   }, [isEditing, category]);
 
@@ -95,51 +96,49 @@ export function AdminCategoryForm({
     }));
   };
 
-  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files && e.target.files[0]) {
-  //     const file = e.target.files[0];
-  //     const reader = new FileReader();
-  //     reader.onloadend = () => {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         image: reader.result as string,
-  //       }));
-  //     };
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: checked,
+    }));
+  };
+
+  const handleParentCategoryChange = (categoryId: string | null) => {
+    setFormData((prev) => ({
+      ...prev,
+      parentCategory: categoryId === prev.parentCategory ? null : categoryId,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Create FormData object to handle file uploads if needed
       const form = new FormData();
-
-      // Append all fields to formData
       form.append("name", formData.name);
-      form.append("description", formData.description || "");
+      if (formData.slug) form.append("slug", formData.slug);
+      if (formData.description) form.append("description", formData.description);
       form.append("isActive", String(formData.isActive !== false));
-
-      // Handle parentCategory - either null, undefined, or ObjectId string
+      
       if (formData.parentCategory) {
-        form.append("parentCategory",formData.parentCategory);
+        form.append("parentCategory", formData.parentCategory);
+      } else {
+        form.append("parentCategory", ""); // Explicitly send empty for null
       }
 
-      // Handle image upload if it's a File object
-        
       if (imageFile) {
         form.append("image", imageFile);
+      } else if (isEditing && !imageFile && !formData.image) {
+        form.append("image", "");
       }
-  
 
       let response;
       if (isEditing && category?._id) {
         response = await categoryPut({
-          body: form,
+          data: form,
           id: category._id,
-  
         }).unwrap();
       } else {
         response = await categoryPost(form).unwrap();
@@ -147,9 +146,7 @@ export function AdminCategoryForm({
 
       toast.success(
         response?.message ||
-          (isEditing
-            ? "Category updated successfully!"
-            : "Category created successfully!")
+          (isEditing ? "Category updated successfully!" : "Category created successfully!")
       );
       onClose();
       if (onSuccess) onSuccess();
@@ -163,10 +160,6 @@ export function AdminCategoryForm({
     }
   };
 
-  // Filter out the current category when editing to prevent circular references
-  const availableParentCategories = (
-    parentCategoryData?.data?.result || []
-  ).filter((cat: Category) => !isEditing || cat._id !== category?._id);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -193,13 +186,25 @@ export function AdminCategoryForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="slug">Slug</Label>
             <Input
+              id="slug"
+              name="slug"
+              value={formData.slug || ""}
+              onChange={handleInputChange}
+              placeholder="Category slug (auto-generated if empty)"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
               id="description"
               name="description"
               value={formData.description || ""}
               onChange={handleInputChange}
               placeholder="Category description"
+              rows={3}
             />
           </div>
 
@@ -219,38 +224,61 @@ export function AdminCategoryForm({
                   </div>
                 )}
               </div>
-              <Input
-                id="image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
+              <div className="flex-1 space-y-2">
+                <Input
+                  id="image"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+                {isEditing && formData.image && !imagePreview && (
+                  <p className="text-xs text-muted-foreground">
+                    Current image will be kept if no new image is selected
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Parent Category</Label>
+            <div className="flex items-center justify-between">
+              <Label>Parent Category</Label>
+              {formData.parentCategory && (
+                <span className="text-sm text-muted-foreground">
+                  Currently selected: {
+                    parentCategoryData?.data?.result.find(
+                      (cat: Category) => cat._id === formData.parentCategory
+                    )?.name
+                  }
+                </span>
+              )}
+            </div>
             <div className="flex flex-wrap gap-2">
-              {availableParentCategories?.map((cat: Category) => (
+              {parentCategoryData?.data?.result.map((cat: Category) => (
                 <Button
                   key={cat._id}
                   type="button"
                   variant={
-                    formData?.parentCategory === cat._id
+                    formData.parentCategory === cat._id
                       ? "default"
                       : "outline"
                   }
                   size="sm"
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      parentCategory: cat._id,
-                    }))
-                  }
+                  onClick={() => handleParentCategoryChange(cat._id || null)}
                 >
                   {cat.name}
                 </Button>
               ))}
+              {formData.parentCategory && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleParentCategoryChange(null)}
+                >
+                  Clear Selection
+                </Button>
+              )}
             </div>
           </div>
 
@@ -260,9 +288,7 @@ export function AdminCategoryForm({
               id="isActive"
               name="isActive"
               checked={formData.isActive !== false}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, isActive: e.target.checked }))
-              }
+              onChange={handleCheckboxChange}
               className="h-4 w-4"
             />
             <Label htmlFor="isActive">Active Category</Label>
