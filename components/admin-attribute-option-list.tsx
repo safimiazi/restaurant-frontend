@@ -46,15 +46,28 @@ export function AdminAttributeOptionList({ onEdit }: ListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   const [productAttributeOptionDelete] =
     useProductAttributeOptionDeleteMutation();
   const { data: attributeOptionsData } = useProductAttributeOptionGetAllQuery({
     isDelete: false,
-    search: searchTerm,
+    search: debouncedSearchTerm,
     pageIndex: pageIndex - 1,
     pageSize,
   });
+
+     useEffect(()=> {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPageIndex(1)
+    }, 500)
+    
+    
+    return () => {
+      clearTimeout(timerId)
+    }
+      },[searchTerm])
 
   const handleDelete = async (id: string) => {
     try {

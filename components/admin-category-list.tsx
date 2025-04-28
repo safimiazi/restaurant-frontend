@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -46,6 +46,7 @@ interface AdminCategoryListProps {
 
 export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
   const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -53,10 +54,23 @@ export function AdminCategoryList({ onEditCategory }: AdminCategoryListProps) {
 const [categoryDelete] = useCategoryDeleteMutation()
   const { data: categoryData, isLoading } = useGetAllCategoryQuery({
     isDelete: false,
-    search: searchTerm,
+    search: debouncedSearchTerm,
     pageIndex: pageIndex - 1, // Converting to 0-based index if your API expects it
     pageSize,
   })
+
+
+  useEffect(()=> {
+const timerId = setTimeout(() => {
+  setDebouncedSearchTerm(searchTerm);
+  setPageIndex(1)
+}, 500)
+
+
+return () => {
+  clearTimeout(timerId)
+}
+  },[searchTerm])
 
   const handleDeleteClick = (category: Category) => {
     setCategoryToDelete(category)

@@ -41,12 +41,27 @@ export function AdminBrandList({ onEditBrand }: AdminBrandListProps) {
   const [pageIndex, setPageIndex] = useState(1); // Start from page 1
   const [pageSize, setPageSize] = useState(5); // Default page size is 5
   const [brandDelete] = useBrandDeleteMutation();
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  
   const { data: brandsData } = useGetAllBrandQuery({
     isDelete: false,
-    search: searchTerm,
+    search: debouncedSearchTerm,
     pageIndex: pageIndex - 1, // Adjust for 0-based index
     pageSize,
   });
+
+  useEffect(()=> {
+    const timerId = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setPageIndex(1)
+    }, 500)
+    
+    
+    return () => {
+      clearTimeout(timerId)
+    }
+      },[searchTerm])
 
   const handleDelete = async (id: number) => {
     try {

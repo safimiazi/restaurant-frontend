@@ -150,7 +150,6 @@ export function AdminCategoryForm({
       onClose();
       if (onSuccess) onSuccess();
     } catch (error: any) {
-      console.error("Error submitting form:", error);
       toast.error(
         error?.data?.message || error?.message || "Something went wrong!"
       );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -53,14 +53,27 @@ export function AdminAttributeList({ onEdit }: ListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   const [deleteAttributeOption] = useProductAttributeOptionDeleteMutation();
   const { data: attributeData } = useProductAttributeGetAllQuery({
     isDelete: false,
-    search: searchTerm,
+    search: debouncedSearchTerm,
     pageIndex: pageIndex - 1,
     pageSize,
   });
+
+    useEffect(()=> {
+  const timerId = setTimeout(() => {
+    setDebouncedSearchTerm(searchTerm);
+    setPageIndex(1)
+  }, 500)
+  
+  
+  return () => {
+    clearTimeout(timerId)
+  }
+    },[searchTerm])
 
   const handleDelete = async (id: string) => {
     try {
