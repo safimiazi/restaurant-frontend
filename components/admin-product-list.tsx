@@ -1,15 +1,37 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Search, Edit, Trash, Eye } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useProductDeleteMutation, useProductGetAllQuery } from "@/redux/api/ProductApi"
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Search, Edit, Trash, Eye } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  useProductDeleteMutation,
+  useProductGetAllQuery,
+} from "@/redux/api/ProductApi";
 import {
   Dialog,
   DialogContent,
@@ -17,96 +39,110 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { toast } from "react-toastify"
-import { Pagination, PaginationContent, PaginationItem, PaginationPrevious, PaginationLink, PaginationNext } from "@/components/ui/pagination"
+} from "@/components/ui/dialog";
+import { toast } from "react-toastify";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationLink,
+  PaginationNext,
+} from "@/components/ui/pagination";
 
 interface AdminProductListProps {
-  onEditProduct: (product: any) => void
+  onEditProduct: (product: any) => void;
 }
 
 export function AdminProductList({ onEditProduct }: AdminProductListProps) {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("")
-  const [pageIndex, setPageIndex] = useState(1)
-  const [pageSize, setPageSize] = useState(5)
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [productToDelete, setProductToDelete] = useState<any>(null)
-  const [productDelete] = useProductDeleteMutation()
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<any>(null);
+  const [productDelete] = useProductDeleteMutation();
 
   // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm)
-      setPageIndex(1) // Reset to first page when search changes
-    }, 500)
+      setDebouncedSearchTerm(searchTerm);
+      setPageIndex(1); // Reset to first page when search changes
+    }, 500);
 
-    return () => clearTimeout(timer)
-  }, [searchTerm])
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  const { data: response, isLoading, refetch } = useProductGetAllQuery({
+  const {
+    data: response,
+    isLoading,
+    refetch,
+  } = useProductGetAllQuery({
     isDelete: false,
     search: debouncedSearchTerm,
     pageIndex: pageIndex - 1,
     pageSize,
     category: categoryFilter === "all" ? undefined : categoryFilter,
-    isActive: statusFilter === "all" ? undefined : statusFilter === "active"
-  })
+    isActive: statusFilter === "all" ? undefined : statusFilter === "active",
+  });
 
-  const products = response?.data?.result || []
-  const meta = response?.data?.meta || { total: 0, totalPage: 1 }
+  const products = response?.data?.result || [];
+  const meta = response?.data?.meta || { total: 0, totalPage: 1 };
 
   const handleDeleteClick = (product: any) => {
-    setProductToDelete(product)
-    setDeleteDialogOpen(true)
-  }
+    setProductToDelete(product);
+    setDeleteDialogOpen(true);
+  };
 
   const confirmDelete = async () => {
     try {
-      const res = await productDelete({ id: productToDelete?._id }).unwrap()
-      toast.success(`${res.message}`)
-      setDeleteDialogOpen(false)
-      setProductToDelete(null)
-      refetch() // Refresh the product list after deletion
+      const res = await productDelete({ id: productToDelete?._id }).unwrap();
+      toast.success(`${res.message}`);
+      setDeleteDialogOpen(false);
+      setProductToDelete(null);
+      refetch(); // Refresh the product list after deletion
     } catch (error: any) {
-      toast.error(error?.data?.message || "Something went wrong!")
+      toast.error(error?.data?.message || "Something went wrong!");
     }
-  }
+  };
 
   const getStatusBadge = (isActive: boolean) => {
     return isActive ? (
       <Badge className="bg-green-500">Active</Badge>
     ) : (
       <Badge variant="outline">Inactive</Badge>
-    )
-  }
+    );
+  };
 
   // Get unique categories for filter
-  const categories = ["all"]
+  const categories = ["all"];
   products.forEach((product: any) => {
-    if (product.category?._id && !categories.some(c => c === product.category._id)) {
-      categories.push(product.category._id)
+    if (
+      product.category?._id &&
+      !categories.some((c) => c === product.category._id)
+    ) {
+      categories.push(product.category._id);
     }
-  })
+  });
 
   // Handle pagination
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= meta.totalPage) {
-      setPageIndex(newPage)
+      setPageIndex(newPage);
     }
-  }
+  };
 
   // Generate pagination items
   const renderPaginationItems = () => {
-    const items = []
-    const maxVisiblePages = 5
-    let startPage = Math.max(1, pageIndex - Math.floor(maxVisiblePages / 2))
-    let endPage = Math.min(meta.totalPage, startPage + maxVisiblePages - 1)
+    const items = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, pageIndex - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(meta.totalPage, startPage + maxVisiblePages - 1);
 
     if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1)
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
 
     for (let i = startPage; i <= endPage; i++) {
@@ -119,11 +155,11 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
             {i}
           </PaginationLink>
         </PaginationItem>
-      )
+      );
     }
 
-    return items
-  }
+    return items;
+  };
 
   return (
     <div className="space-y-4">
@@ -141,11 +177,11 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
           </div>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
-          <Select 
-            value={categoryFilter} 
+          <Select
+            value={categoryFilter}
             onValueChange={(value) => {
-              setCategoryFilter(value)
-              setPageIndex(1)
+              setCategoryFilter(value);
+              setPageIndex(1);
             }}
           >
             <SelectTrigger className="w-[180px]">
@@ -156,18 +192,21 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
               {products
                 .filter((product: any) => product.category?._id)
                 .map((product: any) => (
-                  <SelectItem key={product.category._id} value={product.category._id}>
+                  <SelectItem
+                    key={product.category._id}
+                    value={product.category._id}
+                  >
                     {product.category.name}
                   </SelectItem>
                 ))}
             </SelectContent>
           </Select>
 
-          <Select 
-            value={statusFilter} 
+          <Select
+            value={statusFilter}
             onValueChange={(value) => {
-              setStatusFilter(value)
-              setPageIndex(1)
+              setStatusFilter(value);
+              setPageIndex(1);
             }}
           >
             <SelectTrigger className="w-[180px]">
@@ -179,6 +218,23 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
               <SelectItem value="inactive">Inactive</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span>Items per page:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPageIndex(1);
+            }}
+            className="border rounded-md px-2 py-1"
+          >
+            {[5, 10, 20].map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -223,7 +279,9 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
                         />
                       </div>
                     </TableCell>
-                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {product.name}
+                    </TableCell>
                     <TableCell>
                       {product?.category?.name || "N/A"}
                       {product?.subcategories?.length > 0 && (
@@ -232,13 +290,18 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>৳ {product.price?.toFixed(2) || "0.00"}</TableCell>
+                    <TableCell>
+                      ৳ {product.price?.toFixed(2) || "0.00"}
+                    </TableCell>
                     <TableCell>{product.discount || 0}%</TableCell>
                     <TableCell>{product.stock || 0}</TableCell>
                     <TableCell className="flex flex-col gap-1">
                       {product?.variant?.map((variant: any, inx: number) => (
                         <Badge key={inx} variant="secondary" className="w-fit">
-                          {variant.name} {variant.attributeOption?.length >= 0 ? `(${variant.attributeOption?.length})` : ""}
+                          {variant.name}{" "}
+                          {variant.attributeOption?.length >= 0
+                            ? `(${variant.attributeOption?.length})`
+                            : ""}
                         </Badge>
                       ))}
                     </TableCell>
@@ -252,17 +315,21 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem 
-                            onClick={() => onEditProduct({
-                              ...product,
-                              brand: product.brand?._id || null,
-                              category: product.category?._id || null
-                            })}
+                          <DropdownMenuItem
+                            onClick={() =>
+                              onEditProduct({
+                                ...product,
+                                brand: product.brand?._id || null,
+                                category: product.category?._id || null,
+                              })
+                            }
                           >
                             <Edit className="mr-2 h-4 w-4" />
                             Edit
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteClick(product)}>
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteClick(product)}
+                          >
                             <Trash className="mr-2 h-4 w-4" />
                             Delete
                           </DropdownMenuItem>
@@ -281,26 +348,27 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
         </CardContent>
       </Card>
 
-      {/* Pagination */}
-      {meta.totalPage > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              {pageIndex > 1 && (
-                <PaginationPrevious onClick={() => handlePageChange(pageIndex - 1)} />
-              )}
-            </PaginationItem>
-            
-            {renderPaginationItems()}
-            
-            <PaginationItem>
-              {pageIndex < meta.totalPage && (
-                <PaginationNext onClick={() => handlePageChange(pageIndex + 1)} />
-              )}
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+ 
+
+      <div className="flex justify-between items-center mt-4">
+        <Button
+          variant="outline"
+          disabled={pageIndex === 1}
+          onClick={() => setPageIndex((prev) => prev - 1)}
+        >
+          Previous
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Page {pageIndex} of {meta.totalPage}
+        </span>
+        <Button
+          variant="outline"
+          disabled={pageIndex === meta.totalPage}
+          onClick={() => setPageIndex((prev) => prev + 1)}
+        >
+          Next
+        </Button>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -308,11 +376,15 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the Product "{productToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete the Product "
+              {productToDelete?.name}"? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={confirmDelete}>
@@ -322,5 +394,5 @@ export function AdminProductList({ onEditProduct }: AdminProductListProps) {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

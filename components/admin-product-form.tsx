@@ -85,8 +85,8 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
       name: "",
       slug: "",
       description: "",
-      category: "",
-      brand: "",
+      category: product?.category || "", // Initialize with proper value
+      brand: product?.brand || "",       // Initialize with proper value
       subcategories: [],
       price: 0,
       discount: 0,
@@ -116,15 +116,14 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
   const { data: categoryData } = useGetAllCategoryQuery({
     isDelete: false,
   });
-
   // Load product data when editing
   useEffect(() => {
     if (isEditing && product) {
       form.reset({
         ...product,
         images: [],
-        brand: product?.brand?._id,
-        category:product?.category?._id,
+        brand: product?.brand,
+        category:product?.category,
         variant: product?.variant?.map((v: any) => v._id) || [],
         subcategories: product?.subcategories?.map((sc: any) => sc._id) || [],
       });
@@ -192,37 +191,33 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
   };
 
   const onSubmit = async (values: ProductFormValues) => {
-    console.log("values", values);
     try {
       const formData = objectToFormData(values);
       let res;
+  
       if (isEditing && product) {
         res = await updateProduct({ data: formData, id: product._id }).unwrap();
-        if(res?.message == "Validation error"){
-          res?.errorSource?.map((item : any) => {
-            return toast.success(item.message);
-          })
-        }else{
-
-          toast.success(res.message);
-        }
       } else {
         res = await productPost(formData).unwrap();
-        if(res?.message == "Validation error"){
-          res?.errorSource?.map((item : any) => {
-            return toast.success(item.message);
-          })
-        }else{
-
-          toast.success(res.message);
-        }
       }
-
-      onClose();
+  
+     
+        toast.success(res?.message || "Success");
+        onClose();
+      
+  
     } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to save product");
+      if (error?.data?.message === "Validation error" && Array.isArray(error?.data?.errorSource)) {
+        error?.data?.errorSource.forEach((item: any) => {
+          toast.error(`Field: ${item.path}\n| Message: ${item.message}`);
+        });
+      } else {
+        toast.error(error?.data?.message || "Failed to save product");
+        onClose();
+      }
     }
   };
+  
 
   return (
     <Form {...form}>
@@ -322,8 +317,8 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {brandData?.data?.result?.map((brand: any) => (
-                            <SelectItem key={brand._id} value={brand._id}>
+                          {brandData?.data?.result?.map((brand: any, inx: number) => (
+                            <SelectItem key={inx} value={brand._id}>
                               {brand.brandName}
                             </SelectItem>
                           ))}
@@ -563,7 +558,7 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
                   name="variant"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Select Attributes</FormLabel>
+                      <FormLabel>Select Variants</FormLabel>
                       <Select
                         onValueChange={(value) => {
                           if (!field.value.includes(value)) {
@@ -573,7 +568,7 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select attributes" />
+                            <SelectValue placeholder="Select variants" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>

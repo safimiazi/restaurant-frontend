@@ -34,7 +34,7 @@ const productApi = baseApi.injectEndpoints({
     }),
 
     productGetAll: build.query({
-      query: ({ pageIndex, pageSize, search, isDelete }) => ({
+      query: ({ pageIndex, pageSize, search, isDelete, category, isActive }) => ({
         url: "/product/get_all_product",
         method: "GET",
         params: {
@@ -42,6 +42,9 @@ const productApi = baseApi.injectEndpoints({
           page: pageIndex,
           searchTerm: search,
           isDelete,
+          category,
+          isActive
+
         },
       }),
       providesTags: ["product"], // ক্যাশিং এনাবল করবে
