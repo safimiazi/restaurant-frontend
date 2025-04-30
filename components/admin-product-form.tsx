@@ -213,7 +213,7 @@ export function AdminProductForm({ product, onClose }: AdminProductFormProps) {
         });
       } else {
         toast.error(error?.data?.message || "Failed to save product");
-        onClose();
+       
       }
     }
   };
