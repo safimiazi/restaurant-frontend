@@ -66,6 +66,8 @@ interface ProductFormValues {
   isActive: boolean;
 }
 
+
+
 interface AdminProductFormProps {
   product?: any;
   onClose: () => void;
