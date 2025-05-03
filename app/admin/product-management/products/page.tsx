@@ -38,7 +38,7 @@ export default function AdminProductsPage() {
               <h1 className="text-xl font-semibold">Products Management</h1>
               <Button onClick={handleAddNew}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add New Product shafi
+                Add New Product
               </Button>
             </div>
           </header>
