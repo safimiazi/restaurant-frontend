@@ -1,31 +1,31 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { AdminSidebar } from "@/components/admin-sidebar"
-import { AdminProductList } from "@/components/admin-product-list"
-import { AdminProductForm } from "@/components/admin-product-form"
-import { Button } from "@/components/ui/button"
-import { Plus } from "lucide-react"
-import { SidebarProvider } from "@/components/ui/sidebar"
+import { useState } from "react";
+import { AdminSidebar } from "@/components/admin-sidebar";
+import { AdminProductList } from "@/components/admin-product-list";
+import { AdminProductForm } from "@/components/admin-product-form";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function AdminProductsPage() {
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [editingProduct, setEditingProduct] = useState(null)
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
 
   const handleAddNew = () => {
-    setEditingProduct(null)
-    setShowAddForm(true)
-  }
+    setEditingProduct(null);
+    setShowAddForm(true);
+  };
 
-  const handleEditProduct = (product : any) => {
-    setEditingProduct(product)
-    setShowAddForm(true)
-  }
+  const handleEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setShowAddForm(true);
+  };
 
   const handleFormClose = () => {
-    setShowAddForm(false)
-    setEditingProduct(null)
-  }
+    setShowAddForm(false);
+    setEditingProduct(null);
+  };
 
   return (
     <SidebarProvider>
@@ -45,7 +45,10 @@ export default function AdminProductsPage() {
 
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
             {showAddForm ? (
-              <AdminProductForm product={editingProduct} onClose={handleFormClose} />
+              <AdminProductForm
+                product={editingProduct}
+                onClose={handleFormClose}
+              />
             ) : (
               <AdminProductList onEditProduct={handleEditProduct} />
             )}
@@ -53,5 +56,5 @@ export default function AdminProductsPage() {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }
