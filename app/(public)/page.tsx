@@ -1,8 +1,11 @@
-import { FoodCategory } from "@/components/food-category"
 import { BestSellers } from "@/components/best-sellers"
 import { SpecialOffers } from "@/components/special-offers"
 
+import Categories from "@/components/pageComponent/home/Categories"
+
 export default function Home() {
+  // category:
+ 
   return (
     <div className="container mx-auto px-4 py-8">
       <header className="mb-8">
@@ -17,12 +20,7 @@ export default function Home() {
 
       <section className="mb-10">
         <h2 className="text-2xl font-semibold mb-4">Categories</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <FoodCategory id="fast-food" name="Fast Food" image="/placeholder.svg?height=200&width=200" />
-          <FoodCategory id="desserts" name="Desserts" image="/placeholder.svg?height=200&width=200" />
-          <FoodCategory id="drinks" name="Drinks" image="/placeholder.svg?height=200&width=200" />
-          <FoodCategory id="main-course" name="Main Course" image="/placeholder.svg?height=200&width=200" />
-        </div>
+       <Categories/>
       </section>
 
       <section className="mb-10">

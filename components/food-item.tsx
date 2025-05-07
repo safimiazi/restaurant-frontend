@@ -6,27 +6,24 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/hooks/use-cart"
+import ProductCartImageSlider from "./pageComponent/productPage/ProductCartImageSlider"
 
-interface FoodItemProps {
-  item: {
-    id: string
-    name: string
-    description: string
-    price: number
-    image: string
-    category: string
-  }
-}
 
-export function FoodItem({ item }: FoodItemProps) {
+
+export function FoodItem({ item }: any) {
   const { addToCart } = useCart()
+  console.log("ss", item)
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md">
-      <Link href={`/food/${item.id}`}>
+      {/* <Link href={`/food/${item.id}`}> */}
         <CardContent className="p-0">
           <div className="relative h-48 w-full">
-            <Image src={item.image || "/placeholder.svg"} alt={item.name} fill className="object-cover" />
+          <ProductCartImageSlider 
+  thumbnail={item.thumbnail} 
+  images={item.images} 
+  video={item.video} 
+/>
           </div>
           <div className="p-4">
             <h3 className="font-semibold">{item.name}</h3>
@@ -34,7 +31,7 @@ export function FoodItem({ item }: FoodItemProps) {
             <p className="mt-2 font-medium">${item.price.toFixed(2)}</p>
           </div>
         </CardContent>
-      </Link>
+      {/* </Link> */}
       <CardFooter className="p-4 pt-0">
         <Button onClick={() => addToCart(item)} className="w-full" variant="outline">
           <ShoppingCart className="mr-2 h-4 w-4" />

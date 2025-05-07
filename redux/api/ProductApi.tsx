@@ -49,6 +49,23 @@ const productApi = baseApi.injectEndpoints({
       }),
       providesTags: ["product"], // ক্যাশিং এনাবল করবে
     }),
+    productGetAllByCategoryId: build.query({
+      query: ({ pageIndex, pageSize, search, isDelete, category, isActive, categoryId }) => ({
+        url: `/product/get_products_by_category/${categoryId}`,
+        method: "GET",
+        params: {
+          limit: pageSize,
+          page: pageIndex,
+          searchTerm: search,
+          isDelete,
+          category,
+          isActive
+
+
+        },
+      }),
+      providesTags: ["product"], // ক্যাশিং এনাবল করবে
+    }),
   }),
 
   overrideExisting: false,
@@ -59,6 +76,7 @@ export const {
     useProductGetAllQuery,
     useProductGetSingleQuery,
     useProductPutMutation,
-    useProductPostMutation
+    useProductPostMutation,
+    useProductGetAllByCategoryIdQuery
 
 } = productApi;
