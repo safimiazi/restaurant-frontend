@@ -55,6 +55,7 @@ const ProductCartImageSlider = ({ thumbnail, images, video }: any) => {
         modules={[Navigation]} // Add Navigation module
         spaceBetween={10}
         className="rounded-lg overflow-hidden"
+        
       >
         {media.map((file: string, index: number) => (
           <SwiperSlide key={index}>
