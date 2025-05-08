@@ -1,22 +1,23 @@
 "use client";
 import Image from "next/image";
-import Link from "next/link";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ShoppingCart, Star, Tags } from "lucide-react";
-import { useCart } from "@/hooks/use-cart";
 import ProductCartImageSlider from "./pageComponent/productPage/ProductCartImageSlider";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/hooks/use-cart";
 import { useState } from "react";
 
 export function FoodItem({ item }: any) {
   const { addToCart } = useCart();
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, any>>({});
-
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, any>>(
+    {}
+  );
   const handleVariantSelect = (variantName: string, option: any) => {
-    setSelectedVariants(prev => ({
+    setSelectedVariants((prev) => ({
       ...prev,
-      [variantName]: option
+      [variantName]: option,
     }));
   };
 
@@ -30,19 +31,20 @@ export function FoodItem({ item }: any) {
 
   return (
     <Card className="overflow-hidden transition-all hover:shadow-md h-full flex flex-col">
-      <Link href={`/food/${item.slug || item._id}`}>
-        <CardContent className="p-0 flex-1">
-          {/* Image/Video Slider */}
-          <div className="relative  w-full">
-            <ProductCartImageSlider
-              thumbnail={item.thumbnail}
-              images={item.images}
-              video={item.video}
-            />
-          </div>
+      {/* <Link href={`/food/1`}> */}
+      <CardContent className="p-0 flex-1">
+        {/* Image/Video Slider */}
+        <div className="relative  w-full">
+          <ProductCartImageSlider
+            thumbnail={item.thumbnail}
+            images={item.images}
+            video={item.video}
+          />
+        </div>
 
-          {/* Product Details */}
-          <div className="p-4 space-y-2">
+        {/* Product Details */}
+        <div className="p-4 space-y-2">
+          <div className="flex items-center justify-between">
             {/* Brand Info */}
             {item.brand && (
               <div className="flex items-center gap-2 mb-2">
@@ -59,90 +61,78 @@ export function FoodItem({ item }: any) {
                 </span>
               </div>
             )}
-
-            {/* Product Name and Price */}
-            <div className="flex justify-between items-start">
-              <h3 className="font-semibold line-clamp-1">{item.name}</h3>
-              <p className="font-medium text-primary ml-2 whitespace-nowrap">
-              ৳ {item.price.toFixed(2)}
-                {item.discount > 0 && (
-                  <span className="text-xs text-muted-foreground line-through ml-1">
-                    ৳ {(item.price + item.discount).toFixed(2)}
-                  </span>
-                )}
-              </p>
-            </div>
-
-            {/* Category & Subcategory */}
+            {/* Category */}
             <div className="flex flex-wrap gap-1">
               {item.category && (
                 <Badge variant="outline" className="text-xs">
                   {item.category.name}
                 </Badge>
               )}
-              {/* {item.subcategories?.map((sub: any) => (
-                <Badge key={sub._id} variant="outline" className="text-xs">
-                  {sub.name}
-                </Badge>
-              ))} */}
             </div>
+          </div>
 
-            {/* Description */}
-            <p className="text-sm text-muted-foreground line-clamp-2">
-              {item.description}
+          {/* Product Name and Price */}
+          <div className="flex justify-between items-start">
+            <h3 className="font-semibold line-clamp-1">{item.name}</h3>
+            <p className="font-medium text-primary ml-2 whitespace-nowrap">
+              ৳ {item.price.toFixed(2)}
+              {item.discount > 0 && (
+                <span className="text-xs text-muted-foreground line-through ml-1">
+                  ৳ {(item.price + item.discount).toFixed(2)}
+                </span>
+              )}
             </p>
-
-         {/* Variants Section */}
-      {item.variant?.map((variant: any) => (
-        <div key={variant._id} className="p-4 border-t">
-          <h4 className="font-medium mb-2">{variant.name}</h4>
-          <div className="flex flex-wrap gap-2">
-            {variant.attributeOption?.map((option: any) => (
-              <button
-                key={option._id}
-                onClick={() => handleVariantSelect(variant.name, option)}
-                className={`relative rounded-lg border p-2 w-24 h-24 flex flex-col items-center justify-center transition-all ${
-                  selectedVariants[variant.name]?._id === option._id
-                    ? "border-primary ring-2 ring-primary/20"
-                    : "border-muted hover:border-primary"
-                }`}
-              >
-                {option.image && (
-                  <div className="relative w-12 h-12 mb-1">
-                    <Image
-                      src={option.image}
-                      alt={option.name}
-                      fill
-                      className="object-cover rounded-md"
-                    />
-                  </div>
-                )}
-                <span className="text-xs font-medium">{option.name}</span>
-                {option.price > 0 && (
-                  <span className="text-xs text-primary mt-1">
-                    +৳ {option.price.toFixed(2)}
-                  </span>
-                )}
-              </button>
-            ))}
           </div>
-        </div>
-      ))}
 
-            {/* Featured Badge */}
-            {item.isFeatured && (
-              <div className="absolute top-2 left-2">
-                <Badge variant="default">
-                  <Star className="h-3 w-3 mr-1" />
-                  Featured
-                </Badge>
+          {/* Description */}
+          <p className="text-sm text-muted-foreground line-clamp-2">
+            {item.description}
+          </p>
+
+          {/* Variants Section */}
+          {item.variant?.map((variant: any) => (
+            <div key={variant._id} className="p-4 border-t">
+              <h4 className="font-medium mb-2">{variant.name}</h4>
+              <div className="grid grid-cols-3 gap-2">
+                {variant.attributeOption?.map((option: any) => (
+                  <button
+                    key={option._id}
+                    onClick={() => handleVariantSelect(variant.name, option)}
+                    className={`relative rounded-lg border p-2  flex flex-col items-center justify-center transition-all
+                      ${
+                        selectedVariants[variant.name]?._id === option._id
+                          ? "border-primary ring-2 ring-primary/20"
+                          : "border-muted hover:border-primary"
+                      }
+                    
+                    `}
+                  >
+                    {option.image && (
+                      <div className="relative w-full h-12 mb-1">
+                        <Image
+                          src={option.image}
+                          alt={option.name}
+                          fill
+                          className="object-cover rounded-md"
+                        />
+                      </div>
+                    )}
+                    <span className="text-xs font-medium">{option.name}</span>
+                    {option.price > 0 && (
+                      <span className="text-xs text-primary mt-1">
+                        +৳ {option.price.toFixed(2)}
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Link>
-         {/* Price Summary */}
-         <div className="p-4 border-t">
+            </div>
+          ))}
+        </div>
+      </CardContent>
+      {/* </Link> */}
+      {/* Price Summary */}
+      <div className="p-4 border-t">
         <div className="flex justify-between font-medium">
           <span>Total:</span>
           <span>৳ {calculateTotalPrice().toFixed(2)}</span>
