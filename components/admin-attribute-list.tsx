@@ -21,7 +21,7 @@ import {
 } from "./ui/dropdown-menu";
 import { toast } from "react-toastify";
 import { useProductAttributeOptionDeleteMutation } from "@/redux/api/ProductAttributeOptionApi";
-import { useProductAttributeGetAllQuery } from "@/redux/api/ProductAttributeApi";
+import { useProductAttributeDeleteMutation, useProductAttributeGetAllQuery } from "@/redux/api/ProductAttributeApi";
 import { Tooltip } from "recharts";
 
 interface Attribute {
@@ -55,7 +55,7 @@ export function AdminAttributeList({ onEdit }: ListProps) {
   const [pageSize, setPageSize] = useState(5);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
-  const [deleteAttributeOption] = useProductAttributeOptionDeleteMutation();
+  const [productAttributeDelete] = useProductAttributeDeleteMutation();
   const { data: attributeData } = useProductAttributeGetAllQuery({
     isDelete: false,
     search: debouncedSearchTerm,
@@ -77,7 +77,7 @@ export function AdminAttributeList({ onEdit }: ListProps) {
 
   const handleDelete = async (id: string) => {
     try {
-      const res = await deleteAttributeOption({ id }).unwrap();
+      const res = await productAttributeDelete({ id }).unwrap();
       toast.success(res?.message || "Attribute option deleted successfully!");
     } catch (error: any) {
       toast.error(error?.data?.message || "Something went wrong!");

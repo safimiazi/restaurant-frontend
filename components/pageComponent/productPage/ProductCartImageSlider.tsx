@@ -19,7 +19,6 @@ const ProductCartImageSlider = ({ thumbnail, images, video }: any) => {
     ...(Array.isArray(images) ? images : []),
     video,
   ].filter(Boolean);
-  console.log("ddd", media);
   // Handle the slide actions
   const handlePrev = () => {
     if (swiperRef.current) {

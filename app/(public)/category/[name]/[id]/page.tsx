@@ -6,17 +6,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { useProductGetAllByCategoryIdQuery } from "@/redux/api/ProductApi"
 import { useParams, useRouter } from "next/navigation"
 
-interface CategoryPageProps {
-  params: {
-    id: string
-  }
-}
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const [categoryName, setCategoryName] = useState("")
+
+export default function CategoryPage() {
   const [pageIndex, setPageIndex] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const {id} = useParams()
+  const {name , id} = useParams()
   const {data: products, isLoading} = useProductGetAllByCategoryIdQuery({
     isDelete: false,
     pageIndex: pageIndex - 1, 
@@ -29,7 +24,7 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">{isLoading ? "isLoading..." : categoryName}</h1>
+      <h1 className="text-3xl font-bold mb-6">{isLoading ? "isLoading..." : decodeURIComponent(typeof name === "string" ? name : "")}</h1>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

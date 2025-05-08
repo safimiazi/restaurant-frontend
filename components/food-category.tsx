@@ -16,9 +16,15 @@ interface FoodCategoryProps {
 
 export function FoodCategory({ item }: FoodCategoryProps) {
   const { _id, name, image,  isActive } = item
-
+  
+  const createSlug = (str: string) => {
+    return str
+      .toLowerCase()
+      .replace(/ /g, '-') // Replace spaces with -
+      .replace(/[^\w-]+/g, '') // Remove all non-word chars
+  }
   return (
-    <Link href={`/category/${_id}`}>
+    <Link href={`/category/${createSlug(name)}/${_id}`}>
     {/* <Link href={`/category/fast-food`}> */}
       <Card className="group relative overflow-hidden rounded-2xl border transition-all hover:shadow-lg">
      
